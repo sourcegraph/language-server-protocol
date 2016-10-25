@@ -457,9 +457,13 @@ interface InitializeParams {
 	capabilities: ClientCapabilities;
 }
 ```
-Where `ClientCapabilities` are currently empty:
+Where `ClientCapabilities` are:
 ```typescript
 interface ClientCapabilities {
+	/**
+	 * The client can satisfy file system requests.
+	 */
+	capabilities: ClientCapabilities;
 }
 ```
 
@@ -620,6 +624,10 @@ interface ServerCapabilities {
 	 * The server provides document formatting on typing.
 	 */
 	documentOnTypeFormattingProvider?: DocumentOnTypeFormattingOptions;
+	/**
+	 * The server provides rename support.
+	 */
+	renameProvider?: boolean
 	/**
 	 * The server provides rename support.
 	 */

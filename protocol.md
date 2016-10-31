@@ -1215,7 +1215,7 @@ _Response_:
 
 #### Resolve Symbol Request
 
-The resolve symbol request is sent from the client to the server to resolve the definition location and symbol information for a given text document position.
+The resolve symbol request is sent from the client to the server to resolve the definition location, symbol information, and related symbols for a given text document position.
 
 _Request_
 * method: 'textDocument/resolveSymbol'
@@ -1225,8 +1225,8 @@ _Response_:
 * result: `ResolvedSymbolInformation` | `ResolvedSymbolInformation`[], defined as follows:
 ```typescript
 /**
- * Represents a node in a compiler abstract syntax tree,
- * with pointers to other nodes on the tree.
+ * Represents a symbol node in an abstract syntax tree,
+ * with pointers to related symbols.
  */
 interface ResolvedSymbolInformation implements SymbolInformation {
 	/**

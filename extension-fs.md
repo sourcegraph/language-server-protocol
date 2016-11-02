@@ -1,11 +1,11 @@
-# VFS (virtual file system) extension to LSP
+# `fs` (file system) extension to LSP
 
-The VFS extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client with file system operations (read file, read dir, stat, lstat).
+The `fs` (file system) extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client with file system operations (`fs/{readFile,readDir,stat,lstat}` LSP methods).
 
 Use cases:
 
-* In some deployment settings, the workspace exists on the client in archived form only, such as a bare Git repository or a .zip file. Using a virtual file system allows the language server to request the minimum set of files necessary to satisfy the request, instead of unarchiving the entire workspace.
-* In multitenant deployments, the local disk may not be secure enough to store private data on. (Perhaps an attacker could craft a workspace with malicious `import` statements in code and reveal portions of any file on the file system.) Using a virtual file system ensures that the language server can operate without writing private code files to disk.
+* In some deployment settings, the workspace exists on the client in archived form only, such as a bare Git repository or a .zip file. Using a virtual file system allows the language server to request the minimum set of files necessary to satisfy the request, instead of unarchiving the entire workspace to disk.
+* In multitenant deployments, the local disk may not be secure enough to store private data on. (Perhaps an attacker could craft a workspace with malicious `import` statements in code and reveal portions of any file on the file system.) Using a virtual file system enforces that the language server can operate without writing private code files to disk.
 * In some deployment settings, language servers must avoid shelling out to untrusted (or sometimes any) programs, for security and performance reasons. Using a virtual file system helps enforce this by making it less likely that another programmer could change the language server to invoke an external program (since it would not be able to read any of the files anyway).
 * For testing and reproducibility, it is helpful to isolate the inputs to the language server. This is easier to do if you can guarantee that the language server will not access the file system.
 

@@ -41,9 +41,10 @@ A FileInfo contains the `stat` information about a file or directory.
 
 ```typescript
 interface FileInfo {
-	name: string; // the file's or dir's name (excluding its parent directory names)
-	size: number; // the file's size in bytes (0 for dirs)
-	dir:  boolean; // whether this is a dir
+	name:    string; // the file's or dir's name (excluding its parent directory names)
+	size:    number; // the file's size in bytes (0 for dirs)
+	dir:     boolean; // whether this is a dir
+	symlink: boolean; // whether this is a symbolic link (only returned by lstat)
 }
 ```
 

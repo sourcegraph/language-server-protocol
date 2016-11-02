@@ -1,6 +1,6 @@
 # `fs` (file system) extension to LSP
 
-The `fs` (file system) extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client with file system operations (`x/fs/{readFile,readDir,stat,lstat}` LSP methods).
+The `fs` (file system) extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client with file system operations (`x/fs/{read,stat,lstat}` LSP methods).
 
 Use cases:
 
@@ -35,16 +35,78 @@ interface VFSExtServerCapabilities extends ServerCapabilities {
 }
 ```
 
-### FileInfo
+### URIMatcher
 
-A FileInfo contains the `stat` information about a file or directory.
+A URIMatcher specifies a URI pattern that matches files and
+directories on the client.
+
+If only the `uri` field is set (i.e., `pathPattern` is empty), then an
+exact match is performed. If the `pathPattern` field is also set, the
+URIMatcher can match any number of files and directories.
+
+Examples:
+
+`{uri: "http://example.com/foo", pathPattern: "*.txt"}` with files
+	http://example.com/foo/a.txt
+	http://example.com/foo/b/c.txt
+	http://example.com/foo/d.zip
+matches only http://example.com/foo/a.txt.
+
+`{uri: "http://example.com/foo/a.txt"}` with files
+	http://example.com/foo/a.txt
+	http://example.com/foo/b/c.txt
+	http://example.com/foo/d.zip
+also matches only http://example.com/foo/a.txt.
+
+``` typescript
+interface URIMatcher {
+	// uri is the full URI to a file/directory (if no pathPattern is provided), or
+	// the URI prefix to which the pathPattern glob is joined (if provided).
+	uri: string;
+
+	// pathPattern, if set, is a glob that is joined to the end of the uri field's
+	// URI path component and matched against files/directories on the client's
+	// file system.
+	//
+	// Glob matching is ONLY performed on the URI path component (and special
+	// characters such as ?[]*-\ are interpreted as glob special characters, not
+	// as URI special characters).
+	//
+	// TODO: is the ** glob operator (match zero or more directories) supported?
+	pathPattern?: string;
+}
+```
+
+### FileContents
+
+ReadResult contains the contents of multiple files.
+
+``` typescript
+interface FileContents {
+	// files contains each file's contents, base64-encoded, in the property
+	// corresponding to its URI.
+	contents: { [uri: string]: string };
+}
+```
+
+### FileStat
+
+A FileStat contains the `stat` information about a file or directory.
 
 ```typescript
-interface FileInfo {
+interface FileStat {
 	name:    string; // the file's or dir's name (excluding its parent directory names)
 	size:    number; // the file's size in bytes (0 for dirs)
 	dir:     boolean; // whether this is a dir
 	symlink: boolean; // whether this is a symbolic link (only returned by lstat)
+}
+```
+
+A FileStats contains the `stat` information about multiple matched files and directories.
+
+``` typescript
+interface FileStats {
+	stats: { [uri: string]: FileStat };
 }
 ```
 
@@ -67,44 +129,39 @@ VFS mode is either completely enabled or completely disabled, according to the f
 
 Even if VFS mode is enabled, it is OK for language servers to treat the local file system as scratch space (e.g., for caching data), as an implementation detail.
 
-### x/fs/readFile request
+### x/fs/read request
 
-The `x/fs/readFile` request is sent from the language server to the client to read the contents of a file.
-
-_Request_:
-* method: `x/fs/readFile`
-* params: `string` the file's absolute file system path (not URI)
-
-_Response_:
-* result: `string` the file's contents, base64-encoded
-* error: code and message set (TODO: specify error code mapping)
-
-### x/fs/readDir request
-
-The `x/fs/readDir` request is sent from the language server to the client to list the entries in a directory.
+The `x/fs/read` request is sent from the language server to the client to read file contents.
 
 _Request_:
-* method: `x/fs/readDir`
-* params: `string` the directory's absolute file system path (not URI)
+* method: `x/fs/read`
+* params: `URIMatcher` the URIs of files to read
 
 _Response_:
-* result: `FileInfo[]` with one element for each child entry (files and directories)
-* error: code and message set (TODO: specify error code mapping)
+* result: `FileContents` the contents of the files at the specified URIs
+* error: if the `URIMatcher` is exact, an error code and message if the operation fails; if an error occurs on a specific file matched by glob, it is ignored
 
-### x/fs/stat and x/fs/lstat
+### x/fs/stat and x/fs/lstat request
 
 The `x/fs/stat` and `x/fs/lstat` requests are sent from the language server to the client to retrieve metadata about a file or directory.
 
-`x/fs/lstat` is identical to `x/fs/stat`, except that if the path parameter refers to a symbolic link, then it returns information about the link itself, not the file it refers to.
+`x/fs/lstat` is identical to `x/fs/stat`, except that if a matched file is a symbolic link, then it returns information about the link itself, not the file it refers to.
 
 _Request_:
 * method: `x/fs/stat` or `x/fs/lstat`
-* params: `string` the absolute file system path (not URI)
+* params: `URIMatcher` the URIs of files to retrieve metadata for
 
 _Response_:
-* result: `FileInfo` describing the file or directory at the given path
-* error: code and message set (TODO: specify error code mapping)
+* result: `FileStats` describing the matched files and directories
+* error: if the `URIMatcher` is exact, an error code and message if the operation fails; if an error occurs on a specific file matched by glob, it is ignored
+
+## Design notes
+
+* The protocol uses URIs, not file paths, to be consistent with the rest of LSP.
+* To avoid requiring language servers to understand custom URI schemes, we only require that servers glob-match on the URI path component. (If we allowed globs in any part of the URI, how would we distinguish between `?` meaning glob zero-or-one or URI querystring?)
+* We avoid needing to return multiple error objects by only returning an error if URI is exact. If we return multiple error objects, we're essentially reimplementing JSON-RPC 2.0 batching at the application level.
 
 ## Known issues
 
 * Many language servers need to traverse the entire workspace. With even a 3-5msec RTT between the client and server, this can become slow. Consider allowing language servers to provide globs to fetch information about multiple files at once, or similar.
+* There is no readlink for getting the destination path of a symlink.

@@ -854,8 +854,17 @@ interface ContentRequestParams {
 ```
 
 _Response_:
-* result: `string`
+* result: `ContentResult` defined as follows
 * error: code and message set in case an exception happens during showing a message.
+
+```typescript
+interface ContentResult {
+	/**
+	 * The text of the document
+	 */
+	text: string;
+}
+```
 
 #### Glob Request
 

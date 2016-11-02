@@ -1,6 +1,6 @@
 # `fs` (file system) extension to LSP
 
-The `fs` (file system) extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client with file system operations (`fs/{readFile,readDir,stat,lstat}` LSP methods).
+The `fs` (file system) extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client with file system operations (`x/fs/{readFile,readDir,stat,lstat}` LSP methods).
 
 Use cases:
 
@@ -18,7 +18,7 @@ for this extension:
 
 ```typescript
 interface VFSExtClientCapabilities extends ClientCapabilities {
-	// vfs indicates that the client can satisfy file system requests (with 'fs/*' methods)
+	// vfs indicates that the client can satisfy file system requests (with 'x/fs/*' methods)
 	// sent by the language server.
 	vfs: boolean;
 }
@@ -30,7 +30,7 @@ for this extension:
 ```typescript
 interface VFSExtServerCapabilities extends ServerCapabilities {
 	// vfs indicates that the server supports querying the client for file system
-	// operations (by sending 'fs/*' requests).
+	// operations (by sending 'x/fs/*' requests).
 	vfs: boolean;
 }
 ```
@@ -66,38 +66,38 @@ VFS mode is either completely enabled or completely disabled, according to the f
 
 Even if VFS mode is enabled, it is OK for language servers to treat the local file system as scratch space (e.g., for caching data), as an implementation detail.
 
-### fs/readFile request
+### x/fs/readFile request
 
-The `fs/readFile` request is sent from the language server to the client to read the contents of a file.
+The `x/fs/readFile` request is sent from the language server to the client to read the contents of a file.
 
 _Request_:
-* method: `fs/readFile`
+* method: `x/fs/readFile`
 * params: `string` the file's absolute file system path (not URI)
 
 _Response_:
 * result: `string` the file's contents, base64-encoded
 * error: code and message set (TODO: specify error code mapping)
 
-### fs/readDir request
+### x/fs/readDir request
 
-The `fs/readDir` request is sent from the language server to the client to list the entries in a directory.
+The `x/fs/readDir` request is sent from the language server to the client to list the entries in a directory.
 
 _Request_:
-* method: `fs/readDir`
+* method: `x/fs/readDir`
 * params: `string` the directory's absolute file system path (not URI)
 
 _Response_:
 * result: `FileInfo[]` with one element for each child entry (files and directories)
 * error: code and message set (TODO: specify error code mapping)
 
-### fs/stat and fs/lstat
+### x/fs/stat and x/fs/lstat
 
-The `fs/stat` and `fs/lstat` requests are sent from the language server to the client to retrieve metadata about a file or directory.
+The `x/fs/stat` and `x/fs/lstat` requests are sent from the language server to the client to retrieve metadata about a file or directory.
 
-`fs/lstat` is identical to `fs/stat`, except that if the path parameter refers to a symbolic link, then it returns information about the link itself, not the file it refers to.
+`x/fs/lstat` is identical to `x/fs/stat`, except that if the path parameter refers to a symbolic link, then it returns information about the link itself, not the file it refers to.
 
 _Request_:
-* method: `fs/stat` or `fs/lstat`
+* method: `x/fs/stat` or `x/fs/lstat`
 * params: `string` the absolute file system path (not URI)
 
 _Response_:

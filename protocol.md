@@ -835,6 +835,71 @@ interface TextDocumentContentChangeEvent {
 }
 ```
 
+#### Content Request
+
+The content request is sent from the server to the client to request the current content of any text document.
+This allows language servers to operate without using the file system directly.
+
+_Request_:
+* method: 'textDocument/content'
+* params: `ContentRequestParams` defined as follows:
+
+```typescript
+interface ContentRequestParams {
+	/**
+	 * The text document to receive the content for
+	 */
+	textDocument: TextDocumentIdentifier;	
+}
+```
+
+_Response_:
+* result: `string`
+* error: code and message set in case an exception happens during showing a message.
+
+#### Glob Request
+
+The glob request is sent from the server to the client to request a list of files in the workspace that match a glob pattern.
+The glob pattern must be matched only against the path of the files in the workspace and relative to the `rootPath`.
+A language server can use the result to index files by doing a content request for each URI.
+Usage of `TextDocumentIdentifier` here allows to easily extend the result with more properties in the future without breaking BC.
+
+_Request_:
+* method: 'workspace/glob'
+* params: `GlobParams` defined as follows:
+
+```typescript
+interface GlobParams {
+	/**
+	 * The glob pattern
+	 */
+	pattern: string;
+}
+```
+Example:
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "workspace/glob", "params": {"pattern": "**/*.php"}}
+```
+
+_Response_:
+* result: `TextDocumentIdentifier[]`
+* error: code and message set in case an exception happens during showing a message.
+
+Example (`rootPath` is `file:///some/project/`):
+
+```json
+{
+	"jsonrpc": "2.0",
+	"id": 1,
+	"result": [
+		{"uri": "file:///some/project/1.php"},
+		{"uri": "file:///some/project/folder/2.php"},
+		{"uri": "file:///some/project/folder/folder/3.php"}
+	]
+}
+```
+
 #### DidCloseTextDocument Notification
 
 The document close notification is sent from the client to the server when the document got closed in the client. The document's truth now exists where the document's uri points to (e.g. if the document's uri is a file uri the truth now exists on disk).

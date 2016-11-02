@@ -860,7 +860,7 @@ _Response_:
 #### Glob Request
 
 The glob request is sent from the server to the client to request a list of files in the workspace that match a glob pattern.
-The glob pattern must be matched only against the path of the files in the workspace and relative to the `rootPath`.
+The glob pattern must be matched only against the path (not other fragments of the URI) and relative to the `rootPath`.
 A language server can use the result to index files by doing a content request for each URI.
 Usage of `TextDocumentIdentifier` here allows to easily extend the result with more properties in the future without breaking BC.
 
@@ -878,16 +878,17 @@ interface GlobParams {
 ```
 Example:
 
-```json
-{"jsonrpc": "2.0", "id": 1, "method": "workspace/glob", "params": {"pattern": "**/*.php"}}
-```
-
 _Response_:
 * result: `TextDocumentIdentifier[]`
 * error: code and message set in case an exception happens during showing a message.
 
-Example (`rootPath` is `file:///some/project/`):
+Examples:
 
+Relative (`rootPath` is `file:///some/project/`):
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "workspace/glob", "params": {"pattern": "**/*.php"}}
+```
 ```json
 {
 	"jsonrpc": "2.0",
@@ -896,6 +897,23 @@ Example (`rootPath` is `file:///some/project/`):
 		{"uri": "file:///some/project/1.php"},
 		{"uri": "file:///some/project/folder/2.php"},
 		{"uri": "file:///some/project/folder/folder/3.php"}
+	]
+}
+```
+
+Absolute:
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "workspace/glob", "params": {"pattern": "/usr/local/go/**/*.*"}}
+```
+```json
+{
+	"jsonrpc": "2.0",
+	"id": 1,
+	"result": [
+		{"uri": "file:///usr/local/go/1.go"},
+		{"uri": "file:///usr/local/go/folder/2.go"},
+		{"uri": "file:///usr/local/go/folder/folder/3.go"}
 	]
 }
 ```

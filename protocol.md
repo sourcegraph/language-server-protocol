@@ -460,8 +460,18 @@ interface InitializeParams {
 }
 ```
 Where `ClientCapabilities` are currently empty:
+
 ```typescript
 interface ClientCapabilities {
+	/**
+	 * The client provides support for workspace/glob
+	 */
+	globProvider?: boolean;
+
+	/**
+	 * The client provides support for textDocument/content
+	 */
+	contentProvider?: boolean;
 }
 ```
 

@@ -870,6 +870,7 @@ interface ContentResult {
 
 The glob request is sent from the server to the client to request a list of files in the workspace that match a glob pattern.
 The glob pattern must be matched only against the path (not other fragments of the URI) and relative to the `rootPath`.
+The client should support globstar matching (`**`).
 A language server can use the result to index files by doing a content request for each URI.
 Usage of `TextDocumentIdentifier` here allows to easily extend the result with more properties in the future without breaking BC.
 
@@ -880,9 +881,32 @@ _Request_:
 ```typescript
 interface GlobParams {
 	/**
-	 * The glob pattern
+	 * One or multiple glob patterns that must all match
 	 */
-	pattern: string;
+	pattern: string | string[];
+
+	/**
+	 * Glob options
+	 */
+	options?: GlobOptions;
+}
+
+/**
+ * A subset of https://www.npmjs.com/package/glob#options
+ */
+interface GlobOptions {
+
+	/**
+	 * Do not match directories, only files.
+	 * (Note: to match only directories, simply put a / at the end of the pattern.)
+	 */
+	nodir?: boolean;
+
+	/**
+	 * Include .dot files in normal matches and globstar matches.
+	 * Note that an explicit dot in a portion of the pattern will always match dot files.
+	 */
+	dot?: boolean;
 }
 ```
 Example:
@@ -896,7 +920,17 @@ Examples:
 Relative (`rootPath` is `file:///some/project/`):
 
 ```json
-{"jsonrpc": "2.0", "id": 1, "method": "workspace/glob", "params": {"pattern": "**/*.php"}}
+{
+	"jsonrpc": "2.0",
+	"id": 1,
+	"method": "workspace/glob",
+	"params": {
+		"pattern": ["**/*.php", "!vendor/**"],
+		"options": {
+			"nodir": true
+		}
+	}
+}
 ```
 ```json
 {
@@ -913,7 +947,14 @@ Relative (`rootPath` is `file:///some/project/`):
 Absolute:
 
 ```json
-{"jsonrpc": "2.0", "id": 1, "method": "workspace/glob", "params": {"pattern": "/usr/local/go/**/*.*"}}
+{
+	"jsonrpc": "2.0",
+	"id": 1,
+	"method": "workspace/glob",
+	"params": {
+		"pattern": "/usr/local/go/**"
+	}
+}
 ```
 ```json
 {
@@ -921,7 +962,9 @@ Absolute:
 	"id": 1,
 	"result": [
 		{"uri": "file:///usr/local/go/1.go"},
+		{"uri": "file:///usr/local/go/folder/"},
 		{"uri": "file:///usr/local/go/folder/2.go"},
+		{"uri": "file:///usr/local/go/folder/folder/"}
 		{"uri": "file:///usr/local/go/folder/folder/3.go"}
 	]
 }

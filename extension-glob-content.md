@@ -71,8 +71,9 @@ The glob request is sent from the server to the client to request a list of file
 The glob patterns must be interpreted according to the following rules:
 * `*` matches any sequence of non-path separator characters
 * `**` when alone in a path component, matches all files and zero or more directories and subdirectories ("globstar"); does not walk symlinks
-* Only files, not directories, are matched
 * `![]{}?` characters are interpreted literally and do not have any special meaning (TEMP NOTE: this is to simplify the implementation of globbing; we will need to write our own simple Go globbing library, and a brief survey of many languages' globbing libraries shows wide disparities in behavior)
+
+Matched directories' URI path components have a trailing path separator character to indicate that they are directories, not files.
 
 A language server can use the result to index files by doing a content request for each URI. Usage of `TextDocumentIdentifier` here allows to easily extend the result with more properties in the future without breaking BC.
 
@@ -140,7 +141,9 @@ Absolute:
 	"id": 1,
 	"result": [
 		{"uri": "file:///usr/local/go/1.go"},
+		{"uri": "file:///usr/local/go/folder/"},
 		{"uri": "file:///usr/local/go/folder/2.go"},
+		{"uri": "file:///usr/local/go/folder/folder/"},
 		{"uri": "file:///usr/local/go/folder/folder/3.go"}
 	]
 }

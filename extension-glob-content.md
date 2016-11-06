@@ -71,7 +71,7 @@ The glob request is sent from the server to the client to request a list of file
 The glob patterns must be interpreted according to the following rules:
 * `*` matches any sequence of non-path separator characters
 * `**` when alone in a path component, matches all files and zero or more directories and subdirectories ("globstar"); does not walk symlinks
-* `![]{}?` characters are interpreted literally and do not have any special meaning (TEMP NOTE: this is to simplify the implementation of globbing; we will need to write our own simple Go globbing library, and a brief survey of many languages' globbing libraries shows wide disparities in behavior)
+* The meaning of `![]{}?` characters is undefined and will be specified prior to this extension being approved
 
 Matched directories' URI path components have a trailing path separator character to indicate that they are directories, not files.
 

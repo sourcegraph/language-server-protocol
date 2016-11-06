@@ -83,10 +83,11 @@ _Request_:
 ```typescript
 interface GlobParams {
 	/**
-	 * One or multiple glob patterns. A file is matched if it matches
-	 * one or more glob patterns.
+	 * A list of glob patterns. A file is matched if it matches
+	 * one or more glob patterns. An empty list or glob pattern
+	 * matches no files.
 	 */
-	pattern: string | string[];
+	patterns: string[];
 }
 ```
 
@@ -104,7 +105,7 @@ Relative (`rootPath` is `file:///some/project`):
 	"id": 1,
 	"method": "workspace/xglob",
 	"params": {
-		"pattern": ["**/*.php", "**/*.json"]
+		"patterns": ["**/*.php", "**/*.json"]
 	}
 }
 ```
@@ -129,7 +130,7 @@ Absolute:
 	"id": 1,
 	"method": "workspace/xglob",
 	"params": {
-		"pattern": "/usr/local/go/**/*"
+		"patterns": ["/usr/local/go/**/*"]
 	}
 }
 ```

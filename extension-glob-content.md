@@ -21,16 +21,16 @@ The language server is allowed to request file paths outside of the workspace ro
 
 ```typescript
 interface ClientCapabilities {
-	/* ... all fields from the base ClientCapabilities ... */
+  /* ... all fields from the base ClientCapabilities ... */
 
-	/**
-	 * The client provides support for workspace/glob.
-	 */
-	globProvider?: boolean;
-	/**
-	 * The client provides support for textDocument/content.
-	 */
-	contentProvider?: boolean;
+  /**
+   * The client provides support for workspace/glob.
+   */
+  globProvider?: boolean;
+  /**
+   * The client provides support for textDocument/content.
+   */
+  contentProvider?: boolean;
 }
 ```
 
@@ -44,10 +44,10 @@ _Request_:
 
 ```typescript
 interface ContentParams {
-	/**
-	 * The text document to receive the content for.
-	 */
-	textDocument: TextDocumentIdentifier;
+  /**
+   * The text document to receive the content for.
+   */
+  textDocument: TextDocumentIdentifier;
 }
 ```
 
@@ -57,10 +57,10 @@ _Response_:
 
 ```typescript
 interface Content {
-	/**
-	 * The text of the document.
-	 */
-	text: string;
+  /**
+   * The text of the document.
+   */
+  text: string;
 }
 ```
 
@@ -83,12 +83,12 @@ _Request_:
 
 ```typescript
 interface GlobParams {
-	/**
-	 * A list of glob patterns. A file is matched if it matches
-	 * one or more glob patterns. An empty list or glob pattern
-	 * matches no files.
-	 */
-	patterns: string[];
+  /**
+   * A list of glob patterns. A file is matched if it matches
+   * one or more glob patterns. An empty list or glob pattern
+   * matches no files.
+   */
+  patterns: string[];
 }
 ```
 
@@ -102,24 +102,24 @@ Relative (`rootPath` is `file:///some/project`):
 
 ```json
 {
-	"jsonrpc": "2.0",
-	"id": 1,
-	"method": "workspace/glob",
-	"params": {
-		"patterns": ["**/*.php", "**/*.json"]
-	}
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "workspace/glob",
+  "params": {
+    "patterns": ["**/*.php", "**/*.json"]
+  }
 }
 ```
 ```json
 {
-	"jsonrpc": "2.0",
-	"id": 1,
-	"result": [
-		{"uri": "file:///some/project/1.php"},
-		{"uri": "file:///some/project/composer.json"}
-		{"uri": "file:///some/project/folder/2.php"},
-		{"uri": "file:///some/project/folder/folder/3.php"}
-	]
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+    {"uri": "file:///some/project/1.php"},
+    {"uri": "file:///some/project/composer.json"}
+    {"uri": "file:///some/project/folder/2.php"},
+    {"uri": "file:///some/project/folder/folder/3.php"}
+  ]
 }
 ```
 
@@ -127,25 +127,25 @@ Absolute:
 
 ```json
 {
-	"jsonrpc": "2.0",
-	"id": 1,
-	"method": "workspace/glob",
-	"params": {
-		"patterns": ["/usr/local/go/**/*"]
-	}
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "workspace/glob",
+  "params": {
+    "patterns": ["/usr/local/go/**/*"]
+  }
 }
 ```
 ```json
 {
-	"jsonrpc": "2.0",
-	"id": 1,
-	"result": [
-		{"uri": "file:///usr/local/go/1.go"},
-		{"uri": "file:///usr/local/go/folder/"},
-		{"uri": "file:///usr/local/go/folder/2.go"},
-		{"uri": "file:///usr/local/go/folder/folder/"},
-		{"uri": "file:///usr/local/go/folder/folder/3.go"}
-	]
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+    {"uri": "file:///usr/local/go/1.go"},
+    {"uri": "file:///usr/local/go/folder/"},
+    {"uri": "file:///usr/local/go/folder/2.go"},
+    {"uri": "file:///usr/local/go/folder/folder/"},
+    {"uri": "file:///usr/local/go/folder/folder/3.go"}
+  ]
 }
 ```
 

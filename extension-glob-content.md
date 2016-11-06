@@ -147,7 +147,7 @@ Absolute:
 		{"uri": "file:///usr/local/go/folder/folder/3.go"}
 	]
 }
-
+```
 
 ## Design notes
 

@@ -24,7 +24,7 @@ interface ClientCapabilities {
 	/* ... all fields from the base ClientCapabilities ... */
 
 	/**
-	 * The client provides support for workspace/xglob.
+	 * The client provides support for workspace/glob.
 	 */
 	globProvider?: boolean;
 	/**
@@ -39,7 +39,7 @@ interface ClientCapabilities {
 The content request is sent from the server to the client to request the current content of any text document. This allows language servers to operate without accessing the file system directly.
 
 _Request_:
-* method: 'textDocument/xcontent'
+* method: 'textDocument/content'
 * params: `ContentParams` defined as follows:
 
 ```typescript
@@ -78,7 +78,7 @@ Matched directories' URI path components have a trailing path separator characte
 A language server can use the result to index files by doing a content request for each URI. Usage of `TextDocumentIdentifier` here allows to easily extend the result with more properties in the future without breaking BC.
 
 _Request_:
-* method: 'workspace/xglob'
+* method: 'workspace/glob'
 * params: `GlobParams` defined as follows:
 
 ```typescript
@@ -104,7 +104,7 @@ Relative (`rootPath` is `file:///some/project`):
 {
 	"jsonrpc": "2.0",
 	"id": 1,
-	"method": "workspace/xglob",
+	"method": "workspace/glob",
 	"params": {
 		"patterns": ["**/*.php", "**/*.json"]
 	}
@@ -129,7 +129,7 @@ Absolute:
 {
 	"jsonrpc": "2.0",
 	"id": 1,
-	"method": "workspace/xglob",
+	"method": "workspace/glob",
 	"params": {
 		"patterns": ["/usr/local/go/**/*"]
 	}

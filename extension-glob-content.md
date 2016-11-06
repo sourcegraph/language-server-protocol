@@ -106,7 +106,7 @@ Relative (`rootPath` is `file:///some/project`):
   "id": 1,
   "method": "workspace/glob",
   "params": {
-    "patterns": ["**/*.php", "**/*.json"]
+    "patterns": ["**/*.php", "**/composer.json"]
   }
 }
 ```

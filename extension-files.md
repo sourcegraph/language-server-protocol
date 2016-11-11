@@ -52,17 +52,8 @@ interface ContentParams {
 ```
 
 _Response_:
-* result: `Content` defined as follows
+* result: `TextDocumentItem`
 * error: code and message set in case an exception occurs
-
-```typescript
-interface Content {
-  /**
-   * The text of the document.
-   */
-  text: string;
-}
-```
 
 ### Files Request
 

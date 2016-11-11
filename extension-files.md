@@ -1,6 +1,6 @@
-# Glob & content extension to LSP
+# File extensions to LSP
 
-The glob & content extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client for a list of all files/directories and for the contents of specific files.
+The files extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client for a list of all files and for the contents of specific files.
 
 Use cases:
 
@@ -24,9 +24,9 @@ interface ClientCapabilities {
   /* ... all fields from the base ClientCapabilities ... */
 
   /**
-   * The client provides support for workspace/glob.
+   * The client provides support for workspace/files.
    */
-  globProvider?: boolean;
+  filesProvider?: boolean;
   /**
    * The client provides support for textDocument/content.
    */
@@ -64,31 +64,24 @@ interface Content {
 }
 ```
 
-### Glob Request
+### Files Request
 
-The glob request is sent from the server to the client to request a list of files in the workspace that match a glob pattern. The glob pattern must be matched only against the path (not other fragments of the URI) and must be relative to the workspace's `rootPath` (set during initialization).
+The files request is sent from the server to the client to request a list of all files in the workspace or inside the directory of the `base` parameter, if given.
 
-The glob patterns must be interpreted according to the following rules:
-* `*` matches any sequence of non-path separator characters
-* `**` when alone in a path component, matches all files and zero or more directories and subdirectories ("globstar"); does not walk symlinks
-* The meaning of `![]{}?` characters is undefined and will be specified prior to this extension being approved
-
-Matched directories' URI path components have a trailing path separator character to indicate that they are directories, not files.
-
-A language server can use the result to index files by doing a content request for each URI. Usage of `TextDocumentIdentifier` here allows to easily extend the result with more properties in the future without breaking BC.
+A language server can use the result to index files by filtering and doing a content request for each text document of interest.
 
 _Request_:
-* method: 'workspace/glob'
-* params: `GlobParams` defined as follows:
+* method: 'workspace/files'
+* params: `FilesParams` defined as follows:
 
 ```typescript
-interface GlobParams {
+interface FilesParams {
   /**
-   * A list of glob patterns. A file is matched if it matches
-   * one or more glob patterns. An empty list or glob pattern
-   * matches no files.
+   * The URI of a directory to search.
+   * Can be relative to the rootPath.
+   * If not given, defaults to rootPath.
    */
-  patterns: string[];
+  base?: string;
 }
 ```
 
@@ -104,21 +97,19 @@ Relative (`rootPath` is `file:///some/project`):
 {
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "workspace/glob",
-  "params": {
-    "patterns": ["**/*.php", "**/composer.json"]
-  }
+  "method": "workspace/files"
 }
 ```
+
 ```json
 {
   "jsonrpc": "2.0",
   "id": 1,
   "result": [
-    {"uri": "file:///some/project/1.php"},
+    {"uri": "file:///some/project/.gitignore"},
     {"uri": "file:///some/project/composer.json"}
-    {"uri": "file:///some/project/folder/2.php"},
-    {"uri": "file:///some/project/folder/folder/3.php"}
+    {"uri": "file:///some/project/folder/1.php"},
+    {"uri": "file:///some/project/folder/folder/2.php"}
   ]
 }
 ```
@@ -131,10 +122,11 @@ Absolute:
   "id": 1,
   "method": "workspace/glob",
   "params": {
-    "patterns": ["/usr/local/go/**/*"]
+    "base": ["/usr/local/go/"]
   }
 }
 ```
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -152,8 +144,11 @@ Absolute:
 ## Design notes
 
 * The protocol uses URIs, not file paths, to be consistent with the rest of LSP.
-* To avoid requiring language servers to understand custom URI schemes, we only require that servers glob-match on the URI path component. (If we allowed globs in any part of the URI, how would we distinguish between `?` meaning glob zero-or-one or URI querystring?)
+* Matching the `base` parameter relative to the `rootPath` permits the server to request files outside the workspace even if the workspace is on a remote host and/or uses an arbitrary protocol.
+* Usage of `TextDocumentIdentifier` in `workspace/files` allows to easily extend the result with more properties in the future without breaking BC.
+
 
 ## Known issues
 
-* There is no readlink for getting the destination path of a symlink.
+* There is no way to get directories
+* Results have to be filtered on the server side. In the future this request may allow filtering through glob patterns.

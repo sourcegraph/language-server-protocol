@@ -136,7 +136,7 @@ Absolute:
 
 * The protocol uses URIs, not file paths, to be consistent with the rest of LSP.
 * Matching the `base` parameter relative to the `rootPath` permits the server to request files outside the workspace even if the workspace is on a remote host and/or uses an arbitrary protocol.
-* Usage of `TextDocumentIdentifier` in `workspace/files` allows to easily extend the result with more properties in the future without breaking BC.
+* Usage of `TextDocumentIdentifier` in `workspace/files` allows to easily extend the result with more properties in the future without breaking backward compatibility.
 
 
 ## Known issues

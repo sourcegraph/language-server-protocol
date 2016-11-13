@@ -111,9 +111,9 @@ Absolute:
 {
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "workspace/glob",
+  "method": "workspace/files",
   "params": {
-    "base": ["/usr/local/go/"]
+    "base": "file:///usr/local/go"
   }
 }
 ```

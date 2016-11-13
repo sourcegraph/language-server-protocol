@@ -1,4 +1,4 @@
-# File extensions to LSP
+# Files extensions to LSP
 
 The files extension to the Language Server Protocol (LSP) allows a language server to operate without sharing a physical file system with the client. Instead of consulting its local disk, the language server can query the client for a list of all files and for the contents of specific files.
 

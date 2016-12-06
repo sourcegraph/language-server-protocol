@@ -1,8 +1,8 @@
-# workspace/reference extension to LSP
+# workspace/xreference extension to LSP
 
-The `workspace/reference` extension to the Language Server Protocol (LSP) enables a language server to export all of the references to dependencies that code inside of the workspace makes.
+The `workspace/xreference` extension to the Language Server Protocol (LSP) enables a language server to export all of the references to dependencies that code inside of the workspace makes.
 
-Use case: clients of a language server can invoke `workspace/reference` in order to find external references to dependencies. This information can then be stored inside of a database, which allows the caller to create a 'global mapping' of symbols in dependencies to the workspace they are used in (e.g. to see "how do other people use this symbol?").
+Use case: clients of a language server can invoke `workspace/xreference` in order to find external references to dependencies. This information can then be stored inside of a database, which allows the caller to create a 'global mapping' of symbols in dependencies to the workspace they are used in (e.g. to see "how do other people use this symbol?").
 
 ### Initialization
 
@@ -15,7 +15,7 @@ interface ServerCapabilities {
   /**
    * The server provides workspace reference exporting support.
    */
-  workspaceReferenceProvider?: boolean;
+  xworkspaceReferenceProvider?: boolean;
 }
 ```
 
@@ -24,7 +24,7 @@ interface ServerCapabilities {
 The workspace reference request is sent from the client to the server to export project-wide references to dependencies. That is, the response strictly returns references in the project to symbols defined in dependencies.
 
 _Request_
-* method: 'workspace/reference'
+* method: 'workspace/xreference'
 * params: `WorkspaceReferenceParams` defined as follows:
 ```typescript
 /**
@@ -48,35 +48,74 @@ interface ReferenceInformation {
 	reference: Location;
 
 	/**
-	 * Metadata describing the symbol that is being referenced. It is up to the
-	 * language server to define what exact data this object contains. In
-	 * general, the response includes the same information that `workspace/symbol`
-	 * would return, but that is only a guideline / not a hard constraint.
-	 *
-	 * The information does NOT always uniquely qualify the symbol. The caller
-	 * should effectively consider the returned information to be information
-	 * about the symbol which _generally_ (but NOT always) identifies a single
-	 * symbol.
-	 *
-	 * The following keys are reserved to have special meaning, but are entirely
-	 * optional:
-	 *
-	 * 	- `"name"` (same as `SymbolInformation.name`)
-	 * 	- `"kind"` (same as `SymbolInformation.kind`)
-	 * 	- `"file"` (same as `SymbolInformation.location.uri`)
-	 * 	- `"containerName"` (same as `SymbolInformation.containerName`)
-	 * 	- `"repo"`: A repository URI like `github.com/golang/go` or `bitbucket.org/jespern/django-piston`
-	 *
-	 * A language server is encouraged to include additional information about
-	 * the symbol. Specifically, any information that a user querying against
-	 * the returned information might be interested in. For example, with Go, a
-	 * user may wish to include or exclude vendored packages from their search
-	 * query, so the Go language server would include `"vendor": true` or `"vendor": false`
-	 * entry in the response which someone indexing this object could filter
-	 * based on. Another example would be including the canonical npm package
-	 * name such that, for example, a user could search for symbols defined in `"npm": "react"`.
+	 * Metadata information describing the symbol being referenced.
 	 */
-	symbol: Object;
+	symbol: ReferenceSymbolInformation;
 }
 ```
 * error: code and message set in case an exception happens during the workspace reference request.
+
+Where `ReferenceSymbolInformation` is defined as follows:
+
+```typescript
+/**
+ * Represents information about a programming construct like a variable, class,
+ * interface etc that has a reference to it. Effectively, it contains data similar
+ * to SymbolInformation except all fields are optional and a metadata field is
+ * present for language-specific data.
+ *
+ * ReferenceSymbolInformation does NOT always uniquely identify a symbol. The
+ * caller should effectively consider the returned information to be
+ * information about the symbol which _generally_ (but NOT always) identifies a
+ * single symbol.
+ */
+interface ReferenceSymbolInformation {
+    /**
+     * The name of this symbol (same as `SymbolInformation.name`).
+     */
+    name?: string;
+
+    /**
+     * The kind of this symbol (same as `SymbolInformation.kind`).
+     */
+    kind?: number;
+
+    /**
+     * The file URI of this symbol (same as `SymbolInformation.location.uri`).
+     */
+    file?: string;
+
+    /**
+     * The name of the symbol containing this symbol (same as `SymbolInformation.containerName`).
+     */
+    containerName?: string;
+
+    /**
+     * The repository URI that the symbol is defined in, e.g. `github.com/golang/go`
+     * or `bitbucket.org/jespern/django-piston`.
+     */
+    repo?: string;
+
+    /**
+     * The 'package', 'library', or 'crate' name that the symbol is defined in.
+     * For example, in JS/TS this would be the npm module name. In Go, the full
+     * package import path. In PHP, the Composer package name. etc.
+     */
+    packageName?: string;
+
+    /**
+     * Metadata describing the symbol that is being referenced. It is up to the
+     * language server to define what exact data this object contains.
+     *
+     * A language server is encouraged to include additional information about
+     * the symbol. Specifically, any information that a user querying against
+     * the returned information might be interested in. For example, with Go, a
+     * user may wish to include or exclude vendored packages from their search
+     * query, so the Go language server would include `"vendor": true` or `"vendor": false`
+     * entry in the response which someone indexing this object could filter
+     * based on. Any information not already covered by the optional standardized
+     * fields above.
+     */
+    meta: Object;
+}
+```

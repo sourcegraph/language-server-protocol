@@ -1,8 +1,8 @@
 # workspace/xreferences extension to LSP
 
-The `workspace/xreferences` extension to the Language Server Protocol (LSP) enables a language server to export all of the references made from the workspace's code to its dependencies.
+The `workspace/xreferences` extension to the Language Server Protocol (LSP) enables a language server to export all of the references made from the workspaces code to its dependencies. Additionally, a new `textDocument/xdefinition` method performs the equivalent of `textDocument/definition` while returning metadata about the definition and _optionally_ a concrete location to it.
 
-Use case: clients of a language server can invoke `workspace/xreferences` in order to find references to dependencies. This information can then be stored inside of a database, which allows the caller to create a 'global mapping' of symbols in dependencies to the workspaces they are used in (e.g. to see "how do other people use this symbol?").
+Use case: clients of a language server can invoke `workspace/xreferences` in order to find references to dependencies. This information can then be stored inside of a database, which allows the caller to create a 'global mapping' of symbols in dependencies to the workspaces they are used in (e.g. to see "how do other people use this symbol?"). A user would perform `textDocument/xdefinition` in order to locate the metadata about the symbol they are interested in and find its references in the database.
 
 ### Initialization
 
@@ -104,9 +104,32 @@ interface ReferenceSymbolInformation {
      * Whether or not the symbol is defined inside of "vendored" code. In Go, for
      * example, this means that an external dependency was copied to a subdirectory
      * named `vendor`. The exact definition of vendor depends on the language,
-     * but it is generally understood to mean "code that was copied from it's
+     * but it is generally understood to mean "code that was copied from its
      * original source and now lives in our project directly".
      */
     vendor?: boolean;
 }
 ```
+
+### Goto Definition Extension Request
+
+This method is almost exactly the same as `textDocument/definition`, except that:
+
+1. The method returns metadata about the definition (the same metadata returned by `workspace/xreferences`).
+2. The concrete location to the definition (`location` field) is optional. This is useful because the language server might not be able to resolve to a concrete location (e.g. due to lack of dependencies) but still may know _some_ information about it (e.g. `name` and `containerName`).
+
+_Request_
+* method: 'textDocument/xdefinition'
+* params: [`TextDocumentPositionParams`](#textdocumentpositionparams)
+
+_Response_:
+* result: `LocationInformation` defined as follows:
+```typescript
+interface LocationInformation {
+    /* A concrete location at which the definition is located, if any. */
+    location?: Location;
+    /* Metadata about the definition */
+    symbol: ReferenceSymbolInformation;
+}
+```
+* error: code and message set in case an exception happens during the definition request.

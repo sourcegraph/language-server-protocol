@@ -104,18 +104,12 @@ interface ReferenceSymbolInformation {
     packageName?: string;
 
     /**
-     * Metadata describing the symbol that is being referenced. It is up to the
-     * language server to define what exact data this object contains.
-     *
-     * A language server is encouraged to include additional information about
-     * the symbol. Specifically, any information that a user querying against
-     * the returned information might be interested in. For example, with Go, a
-     * user may wish to include or exclude vendored packages from their search
-     * query, so the Go language server would include `"vendor": true` or `"vendor": false`
-     * entry in the response which someone indexing this object could filter
-     * based on. Any information not already covered by the optional standardized
-     * fields above.
+     * Whether or not the symbol is defined inside of "vendored" code. In Go, for
+     * example, this means that an external dependency was copied to a subdirectory
+     * named `vendor`. The exact definition of vendor depends on the language,
+     * but it is generally understood to mean "code that was copied from it's
+     * original source and now lives in our project directly".
      */
-    meta: Object;
+    vendor?: boolean;
 }
 ```

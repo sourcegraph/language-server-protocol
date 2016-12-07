@@ -63,10 +63,8 @@ Where `ReferenceSymbolInformation` is defined as follows:
  * interface etc that has a reference to it. Effectively, it contains data similar
  * to SymbolInformation except all fields are optional.
  *
- * ReferenceSymbolInformation does NOT always uniquely identify a symbol. The
- * caller should effectively consider the returned information to be
- * information about the symbol which _generally_ (but NOT always) identifies a
- * single symbol.
+ * ReferenceSymbolInformation usually uniquely identifies a symbol, but it is
+ * not guaranteed to do so.
  */
 interface ReferenceSymbolInformation {
     /**

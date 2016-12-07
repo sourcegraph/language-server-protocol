@@ -123,12 +123,12 @@ _Request_
 * params: [`TextDocumentPositionParams`](#textdocumentpositionparams)
 
 _Response_:
-* result: `LocationInformation` defined as follows:
+* result: `LocationInformation[]` defined as follows:
 ```typescript
 interface LocationInformation {
     /* A concrete location at which the definition is located, if any. */
     location?: Location;
-    /* Metadata about the definition */
+    /* Metadata about the definition. */
     symbol: SymbolDescriptor;
 }
 ```

@@ -50,12 +50,12 @@ interface ReferenceInformation {
     /**
      * Metadata information describing the symbol being referenced.
      */
-    symbol: SymbolMetadata;
+    symbol: SymbolDescriptor;
 }
 ```
 * error: code and message set in case an exception happens during the workspace references request.
 
-Where `SymbolMetadata` is defined as follows:
+Where `SymbolDescriptor` is defined as follows:
 
 ```typescript
 /**
@@ -63,10 +63,10 @@ Where `SymbolMetadata` is defined as follows:
  * interface etc that has a reference to it. Effectively, it contains data similar
  * to SymbolInformation except all fields are optional.
  *
- * SymbolMetadata usually uniquely identifies a symbol, but it is
+ * SymbolDescriptor usually uniquely identifies a symbol, but it is
  * not guaranteed to do so.
  */
-interface SymbolMetadata {
+interface SymbolDescriptor {
     /**
      * The name of this symbol (same as `SymbolInformation.name`).
      */
@@ -129,7 +129,7 @@ interface LocationInformation {
     /* A concrete location at which the definition is located, if any. */
     location?: Location;
     /* Metadata about the definition */
-    symbol: SymbolMetadata;
+    symbol: SymbolDescriptor;
 }
 ```
 * error: code and message set in case an exception happens during the definition request.

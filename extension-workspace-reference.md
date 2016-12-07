@@ -81,9 +81,9 @@ interface ReferenceSymbolInformation {
     kind?: number;
 
     /**
-     * The file URI of this symbol (same as `SymbolInformation.location.uri`).
+     * The URI of this symbol (same as `SymbolInformation.location.uri`).
      */
-    file?: string;
+    uri?: string;
 
     /**
      * The name of the symbol containing this symbol (same as `SymbolInformation.containerName`).

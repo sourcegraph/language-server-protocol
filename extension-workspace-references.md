@@ -61,8 +61,7 @@ Where `ReferenceSymbolInformation` is defined as follows:
 /**
  * Represents information about a programming construct like a variable, class,
  * interface etc that has a reference to it. Effectively, it contains data similar
- * to SymbolInformation except all fields are optional and a metadata field is
- * present for language-specific data.
+ * to SymbolInformation except all fields are optional.
  *
  * ReferenceSymbolInformation does NOT always uniquely identify a symbol. The
  * caller should effectively consider the returned information to be

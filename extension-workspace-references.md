@@ -21,7 +21,7 @@ interface ServerCapabilities {
 
 #### Workspace References Request
 
-The workspace references request is sent from the client to the server to export project-wide references to dependencies. That is, the response strictly returns references in the project to symbols defined in dependencies.
+The workspace references request is sent from the client to the server to export project-wide references to dependencies. That is, the response only returns references in the project to symbols defined in dependencies.
 
 _Request_
 * method: 'workspace/xreferences'

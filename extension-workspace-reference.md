@@ -1,8 +1,8 @@
-# workspace/xreference extension to LSP
+# workspace/xreferences extension to LSP
 
-The `workspace/xreference` extension to the Language Server Protocol (LSP) enables a language server to export all of the references to dependencies that code inside of the workspace makes.
+The `workspace/xreferences` extension to the Language Server Protocol (LSP) enables a language server to export all of the references to dependencies that code inside of the workspace makes.
 
-Use case: clients of a language server can invoke `workspace/xreference` in order to find external references to dependencies. This information can then be stored inside of a database, which allows the caller to create a 'global mapping' of symbols in dependencies to the workspace they are used in (e.g. to see "how do other people use this symbol?").
+Use case: clients of a language server can invoke `workspace/xreferences` in order to find references to dependencies. This information can then be stored inside of a database, which allows the caller to create a 'global mapping' of symbols in dependencies to the workspace they are used in (e.g. to see "how do other people use this symbol?").
 
 ### Initialization
 
@@ -13,24 +13,24 @@ interface ServerCapabilities {
   /* ... all fields from the base ServerCapabilities ... */
 
   /**
-   * The server provides workspace reference exporting support.
+   * The server provides workspace references exporting support.
    */
-  xworkspaceReferenceProvider?: boolean;
+  xworkspaceReferencesProvider?: boolean;
 }
 ```
 
-#### Workspace Reference Request
+#### Workspace References Request
 
-The workspace reference request is sent from the client to the server to export project-wide references to dependencies. That is, the response strictly returns references in the project to symbols defined in dependencies.
+The workspace references request is sent from the client to the server to export project-wide references to dependencies. That is, the response strictly returns references in the project to symbols defined in dependencies.
 
 _Request_
-* method: 'workspace/xreference'
-* params: `WorkspaceReferenceParams` defined as follows:
+* method: 'workspace/xreferences'
+* params: `WorkspaceReferencesParams` defined as follows:
 ```typescript
 /**
- * The parameters of a Workspace Reference Request.
+ * The parameters of a Workspace References Request.
  */
-interface WorkspaceReferenceParams {
+interface WorkspaceReferencesParams {
 }
 ```
 
@@ -53,7 +53,7 @@ interface ReferenceInformation {
 	symbol: ReferenceSymbolInformation;
 }
 ```
-* error: code and message set in case an exception happens during the workspace reference request.
+* error: code and message set in case an exception happens during the workspace references request.
 
 Where `ReferenceSymbolInformation` is defined as follows:
 

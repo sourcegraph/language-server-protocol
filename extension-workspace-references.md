@@ -88,19 +88,6 @@ interface SymbolDescriptor {
     containerName?: string;
 
     /**
-     * The repository URI that the symbol is defined in, e.g. `github.com/golang/go`
-     * or `bitbucket.org/jespern/django-piston`.
-     */
-    repo?: string;
-
-    /**
-     * The 'package', 'library', or 'crate' name that the symbol is defined in.
-     * For example, in JS/TS this would be the npm module name. In Go, the full
-     * package import path. In PHP, the Composer package name. etc.
-     */
-    packageName?: string;
-
-    /**
      * Whether or not the symbol is defined inside of "vendored" code. In Go, for
      * example, this means that an external dependency was copied to a subdirectory
      * named `vendor`. The exact definition of vendor depends on the language,
@@ -108,6 +95,12 @@ interface SymbolDescriptor {
      * original source and now lives in our project directly".
      */
     vendor?: boolean;
+
+    /**
+     * Metadata describing the symbol that is being referenced. It is up to the
+     * language server to define what exact data this object contains.
+     */
+    meta: Object;
 }
 ```
 

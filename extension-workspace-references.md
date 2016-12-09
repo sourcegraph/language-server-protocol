@@ -97,10 +97,10 @@ interface SymbolDescriptor {
     vendor?: boolean;
 
     /**
-     * Metadata describing the symbol that is being referenced. It is up to the
+     * Attributes describing the symbol that is being referenced. It is up to the
      * language server to define what exact data this object contains.
      */
-    meta: Object;
+    attributes: Object;
 }
 ```
 

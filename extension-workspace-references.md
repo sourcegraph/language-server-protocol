@@ -150,11 +150,11 @@ Where `VersionDescriptor` is defined as:
  * defined fields OR semantically version fields (which are preferable).
  */
 type VersionDescriptor = Object | {
-    CommitID?: string
-    Major?: number
-    Minor?: number
-    Patch?: number
-    Tag?: string
+    commitID?: string
+    major?: number
+    minor?: number
+    patch?: number
+    tag?: string
 };
 ```
 

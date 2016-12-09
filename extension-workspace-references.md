@@ -176,7 +176,7 @@ interface LocationInformation {
     /* A concrete location at which the definition is located, if any. */
     location?: Location;
     /* Metadata about the definition. */
-    symbol: SymbolDescriptor;
+    symbol: []SymbolDescriptor;
 }
 ```
 * error: code and message set in case an exception happens during the definition request.

@@ -128,7 +128,7 @@ interface PackageDescriptor {
     /**
      * The version of the package in the registry.
      */
-    version: VersionDescriptor;
+    version?: VersionDescriptor;
 
     /**
      * The registry for this package. Examples:

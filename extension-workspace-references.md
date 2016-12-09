@@ -98,11 +98,64 @@ interface SymbolDescriptor {
     vendor?: boolean;
 
     /**
+     * Information about the package/library that this symbol is defined in.
+     */
+    package: PackageDescriptor;
+
+    /**
      * Attributes describing the symbol that is being referenced. It is up to the
      * language server to define what exact data this object contains.
      */
     attributes: Object;
 }
+```
+
+Where `PackageDescriptor` is defined as follows:
+
+```
+/**
+ * Represents information about a programming code unit like a package,
+ * library, crate, module, etc. It uniquely identifies a package at a specific
+ * version within a given registry.
+ */
+interface PackageDescriptor {
+    /**
+     * An ID representing the package of code. For example, in JS this would be
+     * the NPM package name. In Go, the full import path. etc.
+     */
+    id: string;
+
+    /**
+     * The version of the package in the registry.
+     */
+    version: VersionDescriptor;
+
+    /**
+     * The registry for this package. Examples:
+     *
+     *  - JS: "npm"
+     *  - Java: "maven" etc.
+     *  - Go: "go"
+     *  
+     */
+    registry: string;
+}
+```
+
+Where `VersionDescriptor` is defined as:
+
+```
+/**
+ * Represents a specific version. It can be either language-server / build tool
+ * defined fields OR semantically version fields (which are preferable).
+ */
+type VersionDescriptor = Object | {
+    CommitID?: string
+    Major?: number
+    Minor?: number
+    Patch?: number
+    Tag?: string
+};
 ```
 
 ### Goto Definition Extension Request

@@ -83,9 +83,10 @@ interface SymbolDescriptor {
     uri?: string;
 
     /**
-     * The name of the symbol containing this symbol (same as `SymbolInformation.containerName`).
+     * The container of this symbol. It is up to the language server to define
+     * what exact data this object contains.
      */
-    containerName?: string;
+    container?: Object;
 
     /**
      * Whether or not the symbol is defined inside of "vendored" code. In Go, for

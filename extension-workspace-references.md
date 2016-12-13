@@ -52,12 +52,13 @@ _Response_:
  */
 interface ReferenceInformation {
     /**
-     * The location in the workspace where the `symbol` has been referenced.
+     * The location in the workspace where the `symbol` is referenced.
      */
     reference: Location;
 
     /**
-     * Metadata information describing the symbol being referenced.
+     * Metadata about the symbol that can be used to identify or locate its
+     * definition.
      */
     symbol: SymbolDescriptor;
 }
@@ -68,14 +69,18 @@ Where `SymbolDescriptor` is defined as follows:
 
 ```typescript
 /**
- * Represents information about a programming construct like a variable, class,
- * interface, etc that has a reference to it. It is up to the language server
- * to define the schema of this object.
+ * Represents information about a programming construct that can be used to
+ * identify and locate the construct's symbol. The identification does not have
+ * to be unique, but it should be as unique as possible.
  *
- * SymbolDescriptor usually uniquely identifies a symbol, but it is
- * not guaranteed to do so.
+ * In contrast to `SymbolInformation`, `SymbolDescriptor` includes more concrete,
+ * language-specific, metadata about the symbol.
  */
 interface SymbolDescriptor {
+    /**
+     * A list of properties of a symbol that can be used to identify or locate
+     * it.
+     */
     [attr: string]: any
 }
 ```
@@ -95,9 +100,13 @@ _Response_:
 * result: `LocationInformation[]` defined as follows:
 ```typescript
 interface LocationInformation {
-    /* A concrete location at which the definition is located, if any. */
+    /* The location where the symbol is defined, if any. */
     location?: Location;
-    /* Metadata about the definition. */
+
+    /**
+     * Metadata about the symbol that can be used to identify or locate its
+     * definition.
+     */
     symbol: []SymbolDescriptor;
 }
 ```

@@ -71,7 +71,8 @@ Where `SymbolDescriptor` is defined as follows:
 /**
  * Represents information about a programming construct that can be used to
  * identify and locate the construct's symbol. The identification does not have
- * to be unique, but it should be as unique as possible.
+ * to be unique, but it should be as unique as possible. It is up to the
+ * language server to define the schema of this object.
  *
  * In contrast to `SymbolInformation`, `SymbolDescriptor` includes more concrete,
  * language-specific, metadata about the symbol.

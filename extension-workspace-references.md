@@ -1,8 +1,8 @@
 # workspace/xreferences extension to LSP
 
-The `workspace/xreferences` extension to the Language Server Protocol (LSP) enables a language server to export all of the references made from the workspaces code to its dependencies. Additionally, a new `textDocument/xdefinition` method performs the equivalent of `textDocument/definition` while returning metadata about the definition and _optionally_ a concrete location to it.
+The `workspace/xreferences` extension to the Language Server Protocol (LSP) enables a language server to export all of the references made from the workspace's code to its dependencies. Additionally, a new `textDocument/xdefinition` method performs the equivalent of `textDocument/definition` while returning metadata about the definition and _optionally_ a concrete location to it.
 
-Use case: clients of a language server can invoke `workspace/xreferences` in order to find references to dependencies. This information can then be stored inside of a database, which allows the caller to create a 'global mapping' of symbols in dependencies to the workspaces they are used in (e.g. to see "how do other people use this symbol?"). A user would perform `textDocument/xdefinition` in order to locate the metadata about the symbol they are interested in and find its references in the database.
+Use case: clients of a language server can invoke `workspace/xreferences` in order to find references to dependencies. This information can then be stored in a database, which allows the caller to create a "global mapping" of symbols in dependencies to the workspaces they are used in (e.g. to see "how do other people use this symbol?"). A user would perform `textDocument/xdefinition` in order to locate the metadata about the symbol they are interested in and find its references in the database.
 
 ### Initialization
 
@@ -21,7 +21,7 @@ interface ServerCapabilities {
 
 #### Workspace References Request
 
-The workspace references request is sent from the client to the server to export project-wide references to dependencies. That is, the response only returns references in the project to symbols defined in dependencies.
+The workspace references request is sent from the client to the server to export project-wide references to dependencies. That is, the response only returns references in the project's code to symbols defined in dependencies.
 
 _Request_
 * method: 'workspace/xreferences'
@@ -39,7 +39,7 @@ _Response_:
 ```typescript
 /**
  * Represents information about a reference to programming constructs like
- * variables, classes, interfaces etc.
+ * variables, classes, interfaces, etc.
  */
 interface ReferenceInformation {
     /**
@@ -60,110 +60,23 @@ Where `SymbolDescriptor` is defined as follows:
 ```typescript
 /**
  * Represents information about a programming construct like a variable, class,
- * interface etc that has a reference to it. Effectively, it contains data similar
- * to SymbolInformation except all fields are optional.
+ * interface, etc that has a reference to it. It is up to the language server
+ * to define the schema of this object.
  *
  * SymbolDescriptor usually uniquely identifies a symbol, but it is
  * not guaranteed to do so.
  */
 interface SymbolDescriptor {
-    /**
-     * The name of this symbol (same as `SymbolInformation.name`).
-     */
-    name?: string;
-
-    /**
-     * The kind of this symbol (same as `SymbolInformation.kind`).
-     */
-    kind?: number;
-
-    /**
-     * The URI of this symbol (same as `SymbolInformation.location.uri`).
-     */
-    uri?: string;
-
-    /**
-     * The container of this symbol. It is up to the language server to define
-     * what exact data this object contains.
-     */
-    container?: Object;
-
-    /**
-     * Whether or not the symbol is defined inside of "vendored" code. In Go, for
-     * example, this means that an external dependency was copied to a subdirectory
-     * named `vendor`. The exact definition of vendor depends on the language,
-     * but it is generally understood to mean "code that was copied from its
-     * original source and now lives in our project directly".
-     */
-    vendor?: boolean;
-
-    /**
-     * Information about the package/library that this symbol is defined in.
-     */
-    package: PackageDescriptor;
-
-    /**
-     * Attributes describing the symbol that is being referenced. It is up to the
-     * language server to define what exact data this object contains.
-     */
-    attributes: Object;
+    [attr: string]: any
 }
-```
-
-Where `PackageDescriptor` is defined as follows:
-
-```
-/**
- * Represents information about a programming code unit like a package,
- * library, crate, module, etc. It uniquely identifies a package at a specific
- * version within a given registry.
- */
-interface PackageDescriptor {
-    /**
-     * An ID representing the package of code. For example, in JS this would be
-     * the NPM package name. In Go, the full import path. etc.
-     */
-    id: string;
-
-    /**
-     * The version of the package in the registry.
-     */
-    version?: VersionDescriptor;
-
-    /**
-     * The registry for this package. Examples:
-     *
-     *  - JS: "npm"
-     *  - Java: "maven" etc.
-     *  - Go: "go"
-     *  
-     */
-    registry: string;
-}
-```
-
-Where `VersionDescriptor` is defined as:
-
-```
-/**
- * Represents a specific version. It can be either language-server / build tool
- * defined fields OR semantically version fields (which are preferable).
- */
-type VersionDescriptor = Object | {
-    commitID?: string
-    major?: number
-    minor?: number
-    patch?: number
-    tag?: string
-};
 ```
 
 ### Goto Definition Extension Request
 
-This method is almost exactly the same as `textDocument/definition`, except that:
+This method is the same as `textDocument/definition`, except that:
 
 1. The method returns metadata about the definition (the same metadata returned by `workspace/xreferences`).
-2. The concrete location to the definition (`location` field) is optional. This is useful because the language server might not be able to resolve to a concrete location (e.g. due to lack of dependencies) but still may know _some_ information about it (e.g. `name` and `containerName`).
+2. The concrete location to the definition (`location` field) is optional. This is useful because the language server might not be able to resolve a goto definition request to a concrete location (e.g. due to lack of dependencies) but still may know _some_ information about it.
 
 _Request_
 * method: 'textDocument/xdefinition'

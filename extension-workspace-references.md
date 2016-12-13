@@ -21,7 +21,7 @@ interface ServerCapabilities {
 
 #### Workspace References Request
 
-The workspace references request is sent from the client to the server to export project-wide references to dependencies. That is, the response only returns references in the project's code to symbols defined in dependencies.
+The workspace references request is sent from the client to the server to locate project-wide references to a symbol given its description / metadata.
 
 _Request_
 * method: 'workspace/xreferences'
@@ -31,6 +31,15 @@ _Request_
  * The parameters of a Workspace References Request.
  */
 interface WorkspaceReferencesParams {
+    /**
+     * Metadata about the symbol that is being searched for.
+     */
+    query: SymbolDescriptor;
+
+    /**
+     * An optional list of files to restrict the search to.
+     */
+    files?: string[];
 }
 ```
 
@@ -75,7 +84,7 @@ interface SymbolDescriptor {
 
 This method is the same as `textDocument/definition`, except that:
 
-1. The method returns metadata about the definition (the same metadata returned by `workspace/xreferences`).
+1. The method returns metadata about the definition (the same metadata that `workspace/xreferences` searches for).
 2. The concrete location to the definition (`location` field) is optional. This is useful because the language server might not be able to resolve a goto definition request to a concrete location (e.g. due to lack of dependencies) but still may know _some_ information about it.
 
 _Request_

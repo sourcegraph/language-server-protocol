@@ -98,9 +98,9 @@ _Request_
 * params: [`TextDocumentPositionParams`](#textdocumentpositionparams)
 
 _Response_:
-* result: `LocationInformation[]` defined as follows:
+* result: `SymbolLocationInformation[]` defined as follows:
 ```typescript
-interface LocationInformation {
+interface SymbolLocationInformation {
     /* The location where the symbol is defined, if any. */
     location?: Location;
 

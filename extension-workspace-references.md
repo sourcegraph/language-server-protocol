@@ -108,7 +108,7 @@ interface LocationInformation {
      * Metadata about the symbol that can be used to identify or locate its
      * definition.
      */
-    symbol: SymbolDescriptor[];
+    symbol: SymbolDescriptor;
 }
 ```
 * error: code and message set in case an exception happens during the definition request.

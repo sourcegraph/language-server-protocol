@@ -16,6 +16,11 @@ interface ServerCapabilities {
    * The server provides workspace references exporting support.
    */
   xworkspaceReferencesProvider?: boolean;
+
+  /**
+   * The server provides extended text document definition support.
+   */
+  xdefinitionProvider?: boolean;
 }
 ```
 

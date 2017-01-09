@@ -1201,15 +1201,37 @@ interface ParameterInformation {
 
 The goto definition request is sent from the client to the server to resolve the definition location of a symbol at a given text document position.
 
->**Changed:** In 2.0 the request uses `TextDocumentPositionParams` with proper `textDocument` and `position` properties. In 1.0 the uri of the referenced text document was inlined into the params object. 
+>**Changed:** In 2.0 the request uses `DefinitionParams` with proper `textDocument` and `position` properties. In 1.0 the uri of the referenced text document was inlined into the params object.
 
 _Request_
 * method: 'textDocument/definition'
-* params: [`TextDocumentPositionParams`](#textdocumentpositionparams)
-
-_Response_:
-* result: [`Location`](#location) | [`Location`](#location)[]
-* error: code and message set in case an exception happens during the definition request.
+* params: `DefinitionParams` defined as follows:
+```typescript
+interface DefinitionSymbolParams extends TextDocumentPositionParams {
+	context: DefinitionContext
+}
+```
+```typescript
+interface DefinitionContext {
+	/**
+	 * Include the symbol information along with location for the definition.
+	 */
+	includeSymbol: boolean;
+}
+```
+_Response_
+* result: `LocationContainer` | `LocationContainer`[] defined as follows:
+```typescript
+/**
+ * Represents an object that contains the location for a symbol.
+ */
+interface LocationContainer {
+	/**
+	 * The location of this symbol.
+	 */
+	location: Location;
+}
+```
 
 #### Find References Request
 
@@ -1320,7 +1342,7 @@ _Response_
  * Represents information about programming constructs like variables, classes,
  * interfaces etc.
  */
-interface SymbolInformation {
+interface SymbolInformation implements LocationContainer {
 	/**
 	 * The name of this symbol.
 	 */

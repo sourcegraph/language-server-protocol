@@ -583,6 +583,10 @@ interface ServerCapabilities {
 	 */
 	definitionProvider?: boolean;
 	/**
+	 * The server provides get symbol support.
+	 */
+	resolvedSymbolProvider?: boolean;
+	/**
 	 * The server provides find references support.
 	 */
 	referencesProvider?: boolean;
@@ -1210,6 +1214,30 @@ _Request_
 _Response_:
 * result: [`Location`](#location) | [`Location`](#location)[]
 * error: code and message set in case an exception happens during the definition request.
+
+#### Resolve Symbol Request
+
+The resolve symbol request is sent from the client to the server to resolve the definition location, symbol information, and related symbols for a given text document position.
+
+_Request_
+* method: 'textDocument/resolveSymbol'
+* params: [`TextDocumentPositionParams`](#textdocumentpositionparams)
+
+_Response_:
+* result: `ResolvedSymbolInformation` | `ResolvedSymbolInformation`[], defined as follows:
+```typescript
+/**
+ * Represents a symbol node in an abstract syntax tree,
+ * with pointers to related symbols.
+ */
+interface ResolvedSymbolInformation implements SymbolInformation {
+	/**
+	 * A list of symbols related to this symbol.
+	 */
+	relatedSymbols: SymbolInformation[];
+}
+```
+* error: code and message set in case an exception happens during the resolve symbol request.
 
 #### Find References Request
 

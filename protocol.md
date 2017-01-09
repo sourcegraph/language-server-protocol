@@ -67,7 +67,7 @@ interface Message {
 ```
 #### RequestMessage 
 
-A request message to describe a request between the client and the server. Every processed request must send a response back to the sender of the request.
+A request message to describe a request between the client and the server (or vice versa). Every processed request must send a response back to the sender of the request.
 
 ```typescript
 interface RequestMessage extends Message {
@@ -459,9 +459,13 @@ interface InitializeParams {
 	capabilities: ClientCapabilities;
 }
 ```
-Where `ClientCapabilities` are currently empty:
+Where `ClientCapabilities` are:
 ```typescript
 interface ClientCapabilities {
+	/**
+	 * The client can satisfy file system requests.
+	 */
+	capabilities: ClientCapabilities;
 }
 ```
 
@@ -583,6 +587,10 @@ interface ServerCapabilities {
 	 */
 	definitionProvider?: boolean;
 	/**
+	 * The server provides get symbol support.
+	 */
+	symbolProvider?: boolean;
+	/**
 	 * The server provides find references support.
 	 */
 	referencesProvider?: boolean;
@@ -618,6 +626,10 @@ interface ServerCapabilities {
 	 * The server provides document formatting on typing.
 	 */
 	documentOnTypeFormattingProvider?: DocumentOnTypeFormattingOptions;
+	/**
+	 * The server provides rename support.
+	 */
+	renameProvider?: boolean
 	/**
 	 * The server provides rename support.
 	 */
@@ -1209,6 +1221,18 @@ _Request_
 
 _Response_:
 * result: [`Location`](#location) | [`Location`](#location)[]
+* error: code and message set in case an exception happens during the definition request.
+
+#### Get Symbol Request
+
+The get symbol request is sent from the client to the server to resolve the definition location and symbol information for a given text document position.
+
+_Request_
+* method: 'textDocument/symbol'
+* params: [`TextDocumentPositionParams`](#textdocumentpositionparams)
+
+_Response_:
+* result: `SymbolInformation` | `SymbolInformation`[]
 * error: code and message set in case an exception happens during the definition request.
 
 #### Find References Request

@@ -10,6 +10,21 @@ The client may clear cache items at any time and the language server MUST NOT de
 ### Example use case
 This allows a language server for example to cache a self-contained definition/references index for each dependency at a specific version inside the workspace and reuse those indexes in multiple workspaces and instances of the language server.
 
+### Initialization
+
+`ClientCapabilities` may contain a new field to indicate client-side support for this extension:
+
+```typescript
+interface ClientCapabilities {
+  // ... all fields from the base ClientCapabilities
+
+  /**
+   * The client provides support for cache/get and cache/set methods
+   */
+  xcacheProvider?: boolean;
+}
+```
+
 ### Cache Get Request
 
 The cache get request is sent from the server to the client to request the value of a cache item identified by the provided key.

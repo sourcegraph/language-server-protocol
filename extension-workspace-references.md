@@ -117,3 +117,31 @@ interface SymbolLocationInformation {
 }
 ```
 * error: code and message set in case an exception happens during the definition request.
+
+### Dependencies Request
+
+This method returns the dependencies of this workspace.
+
+_Request_
+* method: 'workspace/xdependencies'
+* params: none
+
+_Response_:
+* result: `DependencyReference[]` where `DependencyReference` is defined as follows:
+```typescript
+/**
+ * Contains information about a package the workspace depends on
+ */
+interface DependencyReference {
+    /**
+     * ?
+     */
+    hints?: { [hint: string]: any };
+
+    /**
+     * Language-specific attributes about the package
+     */
+    attributes: { [attribute: string]: any };
+}
+```
+* error: code and message set in case an exception happens during the definition request.

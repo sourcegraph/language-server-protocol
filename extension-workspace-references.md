@@ -24,7 +24,29 @@ interface ServerCapabilities {
 }
 ```
 
-#### Workspace References Request
+### Extended `SymbolInformation`
+
+This extension defines a few more properties on `SymbolInformation`.
+
+```ts
+interface SymbolInformation {
+
+    // ... all properties from the base SymbolInformation
+
+    /**
+     * A globally unique identifier for the the symbol, if the language server is able to construct one.
+     */
+    id?: string;
+
+    /**
+     * Contains information about the package this symbol is contained in.
+     * The properties that describe the package are language-dependent.
+     */
+    package?: { [key: string]: any; };
+}
+```
+
+### Workspace References Request
 
 The workspace references request is sent from the client to the server to locate project-wide references to a symbol given its description / metadata.
 
@@ -39,7 +61,7 @@ interface WorkspaceReferencesParams {
     /**
      * Metadata about the symbol that is being searched for.
      */
-    query: Partial<SymbolDescriptor>;
+    query: Partial<SymbolInformation>;
 
     /**
      * An optional list of files to restrict the search to.
@@ -65,55 +87,21 @@ interface ReferenceInformation {
      * Metadata about the symbol that can be used to identify or locate its
      * definition.
      */
-    symbol: SymbolDescriptor;
+    symbol: Partial<SymbolInformation>;
 }
 ```
 * error: code and message set in case an exception happens during the workspace references request.
 
-Where `SymbolDescriptor` is defined as follows:
-
-```typescript
-/**
- * Represents information about a programming construct that can be used to
- * identify and locate the construct's symbol. The identification does not have
- * to be unique, but it should be as unique as possible. It is up to the
- * language server to define the schema of this object.
- *
- * In contrast to `SymbolInformation`, `SymbolDescriptor` includes more concrete,
- * language-specific, metadata about the symbol.
- */
-interface SymbolDescriptor {
-    /**
-     * A list of properties of a symbol that can be used to identify or locate
-     * it.
-     */
-    [attr: string]: any
-}
-```
-
 ### Goto Definition Extension Request
 
-This method is the same as `textDocument/definition`, except that:
+This method is the same as `textDocument/definition`, except that instead of returning only the location, it returns a partial `SymbolInformation` with as many information about the symbol as possible.
 
-1. The method returns metadata about the definition (the same metadata that `workspace/xreferences` searches for).
-2. The concrete location to the definition (`location` field) is optional. This is useful because the language server might not be able to resolve a goto definition request to a concrete location (e.g. due to lack of dependencies) but still may know _some_ information about it.
+The result can be passed into `workspace/xreferences` to search for.
 
 _Request_
 * method: 'textDocument/xdefinition'
 * params: [`TextDocumentPositionParams`](#textdocumentpositionparams)
 
 _Response_:
-* result: `SymbolLocationInformation[]` defined as follows:
-```typescript
-interface SymbolLocationInformation {
-    /* The location where the symbol is defined, if any. */
-    location?: Location;
-
-    /**
-     * Metadata about the symbol that can be used to identify or locate its
-     * definition.
-     */
-    symbol: SymbolDescriptor;
-}
-```
+* result: `Partial<SymbolInformation>[]`
 * error: code and message set in case an exception happens during the definition request.

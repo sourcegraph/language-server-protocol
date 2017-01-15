@@ -117,3 +117,26 @@ interface SymbolLocationInformation {
 }
 ```
 * error: code and message set in case an exception happens during the definition request.
+
+
+### Extended Workspace Symbol Request
+
+The `workspace/symbol` request takes an optional parameter `symbol` that allows you to query by known properties about the symbol.
+The string `query` parameter becomes optional.
+
+```typescript
+/**
+ * The parameters of a Workspace Symbol Request.
+ */
+interface WorkspaceSymbolParams {
+    /**
+     * A query string
+     */
+    query?: string;
+
+    /**
+     * Known properties about the symbol.
+     */
+    symbol?: Partial<SymbolDescriptor>;
+}
+```

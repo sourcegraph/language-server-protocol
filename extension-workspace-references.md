@@ -21,6 +21,12 @@ interface ServerCapabilities {
    * The server provides extended text document definition support.
    */
   xdefinitionProvider?: boolean;
+
+  /**
+   * The server provides support for querying symbols by properties
+   * with WorkspaceSymbolParams.symbol
+   */
+  xworkspaceSymbolByProperties?: boolean;
 }
 ```
 

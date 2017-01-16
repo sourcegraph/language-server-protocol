@@ -21,6 +21,11 @@ interface ServerCapabilities {
    * The server provides extended text document definition support.
    */
   xdefinitionProvider?: boolean;
+
+  /**
+   * The server provides support for retrieving the workspace's dependencies
+   */
+  xdependenciesProvider?: boolean;
 }
 ```
 

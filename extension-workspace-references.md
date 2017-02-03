@@ -46,7 +46,9 @@ interface WorkspaceReferencesParams {
      * look in order to find the symbol (this is an optimization). It is up to
      * the language server to define the schema of this object.
      */
-    [hints: string]: any;
+    hints: {
+        [hint: string]: any;
+    }
 }
 ```
 

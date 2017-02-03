@@ -48,9 +48,13 @@ interface WorkspaceReferencesParams {
     query: Partial<SymbolDescriptor>;
 
     /**
-     * An optional list of files to restrict the search to.
+     * Hints provides optional hints about where the language server should
+     * look in order to find the symbol (this is an optimization). It is up to
+     * the language server to define the schema of this object.
      */
-    files?: string[];
+    hints: {
+        [hint: string]: any;
+    }
 }
 ```
 

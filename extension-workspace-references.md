@@ -4,6 +4,65 @@ The `workspace/xreferences` extension to the Language Server Protocol (LSP) enab
 
 Use case: clients of a language server can invoke `workspace/xreferences` in order to find references to dependencies. This information can then be stored in a database, which allows the caller to create a "global mapping" of symbols in dependencies to the workspaces they are used in (e.g. to see "how do other people use this symbol?"). A user would perform `textDocument/xdefinition` in order to locate the metadata about the symbol they are interested in and find its references in the database.
 
+### New Identifiers
+
+#### Packages
+
+The extension adds the concept of "packages" to LSP.
+A package is specifically something that would usually be installed through a package manager like npm, Composer or Maven.
+A workspace can contain multiple packages in the form of own packages and dependencies.
+A package is identified by a language-specific interface, that is defined by the language server:
+
+```ts
+/**
+ * The minimal set of properties that identify the package globally, as uniquely as possible.
+ * Depending on the language, can contain a name, a publisher, a package manager, a URL, ...
+ */
+interface PackageIdentifier {
+    [prop: string]: any;
+}
+```
+
+Examples:
+
+```ts
+// TypeScript/JavaScript
+{ name: "express" }
+{ url: "github.com/some/repo" }
+// PHP
+{ name: "symfony/symfony" }
+// Java
+// ?
+// Go
+// ?
+```
+
+#### Symbols
+
+```ts
+/**
+ * The minimal set of properties needed to identify the symbol globally as uniquely as possible
+ */
+interface SymbolIdentifier {
+    /**
+     * If the symbol is part of a package (in a dependency or root package), this property must contain the PackageIdentifier
+     */
+    package?: PackageIdentifier;
+
+    [prop: string]: any;
+}
+```
+
+Examples:
+
+```ts
+// TypeScript
+// PHP
+{ fqsen: "SomeNamespace\\SomeClass::someMethod()" }
+// Java
+// Go
+```
+
 ### Initialization
 
 `ServerCapabilities` may contain a new field to indicate server-side support for this extension:
@@ -43,9 +102,9 @@ _Request_
  */
 interface WorkspaceReferencesParams {
     /**
-     * Metadata about the symbol that is being searched for.
+     * Known properties about the identity of the symbol (for example, the package identifier)
      */
-    query: Partial<SymbolDescriptor>;
+    query: Partial<SymbolIdentifier>;
 
     /**
      * Hints provides optional hints about where the language server should
@@ -72,34 +131,12 @@ interface ReferenceInformation {
     reference: Location;
 
     /**
-     * Metadata about the symbol that can be used to identify or locate its
-     * definition.
+     * Properties of the symbol to identify it
      */
-    symbol: SymbolDescriptor;
+    symbol: SymbolIdentifier;
 }
 ```
 * error: code and message set in case an exception happens during the workspace references request.
-
-Where `SymbolDescriptor` is defined as follows:
-
-```typescript
-/**
- * Represents information about a programming construct that can be used to
- * identify and locate the construct's symbol. The identification does not have
- * to be unique, but it should be as unique as possible. It is up to the
- * language server to define the schema of this object.
- *
- * In contrast to `SymbolInformation`, `SymbolDescriptor` includes more concrete,
- * language-specific, metadata about the symbol.
- */
-interface SymbolDescriptor {
-    /**
-     * A list of properties of a symbol that can be used to identify or locate
-     * it.
-     */
-    [attr: string]: any
-}
-```
 
 ### Goto Definition Extension Request
 
@@ -120,10 +157,9 @@ interface SymbolLocationInformation {
     location?: Location;
 
     /**
-     * Metadata about the symbol that can be used to identify or locate its
-     * definition.
+     * Properties of the symbol to identify it
      */
-    symbol: SymbolDescriptor;
+    symbol: SymbolIdentifier;
 }
 ```
 * error: code and message set in case an exception happens during the definition request.
@@ -157,6 +193,6 @@ interface WorkspaceSymbolParams {
     /**
      * Known properties about the symbol.
      */
-    symbol?: Partial<SymbolDescriptor>;
+    symbol?: Partial<SymbolIdentifier>;
 }
 ```

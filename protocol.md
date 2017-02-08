@@ -2190,7 +2190,7 @@ _Registration Options_: `TextDocumentRegistrationOptions`
 
 #### <a name="workspace_symbol"></a>Workspace Symbols Request
 
-The workspace symbol request is sent from the client to the server to list project-wide symbols matching the query string. The text document parameter specifies the active document at time of the query. This can be used to scope the search to a specific workspace if the document tree contains multiple workspaces. If textDocument is undefined and there is only one workspace in the document tree, then `workspace/symbol` should return results from that workspace. If there are multiple workspaces, the behavior is undefined.
+The workspace symbol request is sent from the client to the server to list project-wide symbols matching the query string. The text document parameter specifies the active document at time of the query. This can be used to rank or limit results.
 
 _Request_:
 * method: 'workspace/symbol'
@@ -2207,8 +2207,8 @@ interface WorkspaceSymbolParams {
 
 	/**
 	 * Identifies the textDocument that is currently active.
-         */
-        textDocument?: TextDocumentIdentifier;
+	 */
+	textDocument?: TextDocumentIdentifier;
 }
 ```
 

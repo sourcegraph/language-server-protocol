@@ -30,7 +30,7 @@ interface ClientCapabilities {
 The cache get request is sent from the server to the client to request the value of a cache item identified by the provided key.
 
 _Request_:
-* method: 'cache/get'
+* method: 'xcache/get'
 * params: `CacheGetParams` defined as follows:
 ```typescript
 interface CacheGetParams {
@@ -51,7 +51,7 @@ The cache set notification is sent from the server to the client to set the valu
 This is a intentionally notification and not a request because the server is not supposed to act differently if the cache set failed.
 
 _Request_:
-* method: 'cache/set'
+* method: 'xcache/set'
 * params: `CacheSetParams` defined as follows:
 ```typescript
 interface CacheSetParams {

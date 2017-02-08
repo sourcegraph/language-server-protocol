@@ -196,3 +196,41 @@ interface WorkspaceSymbolParams {
     symbol?: Partial<SymbolIdentifier>;
 }
 ```
+
+### Workspace Packages Request
+
+This method returns metadata about the package(s) defined in a
+workspace and a list of dependencies for each package.
+
+This method is necessary to implement cross-repository jump-to-def
+when it is not possible to resolve the global location of the
+definition from data present or derived from the local workspace. For
+example, a package manager might not include information about the
+source repository of each dependency. In this case, definition
+resolution requires mapping from package identifier to repository
+revision URL. A reverse index can be constructed from calls to
+`workspace/xpackages` to provide an efficient mapping.
+
+_Request_
+* method: 'workspace/xpackages'
+* params: `void`
+
+_Response_:
+* result: `PackageInformation[]`
+
+```typescript
+interface PackageInformation {
+
+    /** The package identifier */
+    package: PackageIdentifier;
+
+    /** The list of package dependencies */
+    dependencies: DependencyReference[];
+}
+
+interface DependencyReference {
+    hints?: { [hint: string]: any };
+    package: PackageIdentifier;
+}
+```
+* error: code and message set in case an exception happens during the definition request.

@@ -2208,7 +2208,7 @@ interface WorkspaceSymbolParams {
 	/**
 	 * Identifies the textDocument that is currently active.
 	 */
-	xtextDocument?: TextDocumentIdentifier;
+	xactiveTextDocument?: TextDocumentIdentifier;
 }
 ```
 

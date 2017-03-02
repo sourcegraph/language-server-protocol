@@ -48,6 +48,10 @@ interface ContentParams {
    * The text document to receive the content for.
    */
   textDocument: TextDocumentIdentifier;
+  /**
+   * Indicates that caller expects content to be BASE64-encoded
+   */
+  binary?: boolean;
 }
 ```
 

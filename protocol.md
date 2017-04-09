@@ -14,6 +14,13 @@ An implementation for node of the 3.0 version of the protocol can be found [here
 The 2.x version of this document can be found [here](https://github.com/Microsoft/language-server-protocol/blob/master/versions/protocol-2-x.md).
 The 1.x version of this document can be found [here](https://github.com/Microsoft/language-server-protocol/blob/master/versions/protocol-1-x.md).
 
+## Change Log
+
+### 02/28/2017
+
+* Make the `WorkspaceEdit` changes backwards compatible.
+* Updated the specification to correctly describe the breaking changes from 2.x to 3.x around `WorkspaceEdit`and `TextDocumentEdit`.
+
 ## Messages overview
 
 General
@@ -151,14 +158,14 @@ interface RequestMessage extends Message {
 
 #### Response Message
 
-Response Message sent as a result of a request.
+Response Message sent as a result of a request. If a request doesn't provide a result value the receiver of a request still needs to return a response message to conform to the JSON RPC specification. The result property of the ResponseMessage should be set to `null` in this case to signal a successful request. 
 
 ```typescript
 interface ResponseMessage extends Message {
 	/**
 	 * The request id.
 	 */
-	id: number | string;
+	id: number | string | null;
 
 	/**
 	 * The result of a request. This can be omitted in
@@ -191,6 +198,7 @@ interface ResponseError<D> {
 }
 
 export namespace ErrorCodes {
+	// Defined by JSON RPC
 	export const ParseError: number = -32700;
 	export const InvalidRequest: number = -32600;
 	export const MethodNotFound: number = -32601;
@@ -200,6 +208,9 @@ export namespace ErrorCodes {
 	export const serverErrorEnd: number = -32000;
 	export const ServerNotInitialized: number = -32002;
 	export const UnknownErrorCode: number = -32001;
+
+	// Defined by the protocol.
+	export const RequestCancelled: number = -32800;
 }
 ```
 #### Notification Message
@@ -220,6 +231,10 @@ interface NotificationMessage extends Message {
 }
 ```
 
+#### $ Notifications and Requests
+
+Notification and requests ids starting with '$/' are messages which are protocol implementation dependent and might not be implementable in all clients or servers. For example if the server implementation uses a single threaded synchronous programming language then there is little a server can do to react to a '$/cancelRequest'. If a server or client receives notifications or requests starting with '$/' it is free to ignore them if they are unknown. 
+
 #### <a name="cancelRequest"></a> Cancellation Support
 
 The base protocol offers support for request cancellation. To cancel a request, a notification message with the following properties is sent:
@@ -236,7 +251,7 @@ interface CancelParams {
 }
 ```
 
-A request that got canceled still needs to return from the server and send a response back. It can not be left open / hanging. This is in line with the JSON RPC protocol that requires that every request sends a response back. In addition it allows for returning partial results on cancel.
+A request that got canceled still needs to return from the server and send a response back. It can not be left open / hanging. This is in line with the JSON RPC protocol that requires that every request sends a response back. In addition it allows for returning partial results on cancel. If the requests returns an error response on cancellation it is advised to set the error code to `ErrorCodes.RequestCancelled`.
 
 ## Language Server Protocol
 
@@ -423,16 +438,41 @@ interface TextEdit {
 
 If n `TextEdit`s are applied to a text document all text edits describe changes to the initial document version. Execution wise text edits should applied from the bottom to the top of the text document. Overlapping text edits are not supported.  
 
+>#### New: TextDocumentEdit
+
+Describes textual changes on a single text document. The text document is referred to as a `VersionedTextDocumentIdentifier` to allow clients to check the text document version before an edit is applied.
+
+```typescript
+export interface TextDocumentEdit {
+	/**
+	 * The text document to change.
+	 */
+	textDocument: VersionedTextDocumentIdentifier;
+
+	/**
+	 * The edits to be applied.
+	 */
+	edits: TextEdit[];
+}
+```
+
 #### WorkspaceEdit
 
-A workspace edit represents changes to many resources managed in the workspace.
+> **Changed** A workspace edit represents changes to many resources managed in the workspace. The edit should either provide `changes` or `documentChanges`. If documentChanges are present they are preferred over `changes` if the client can handle versioned document edits.
 
- ```typescript
-interface WorkspaceEdit {
+```typescript
+export interface WorkspaceEdit {
 	/**
 	 * Holds changes to existing resources.
 	 */
-	changes: { [uri: DocumentUri]: TextEdit[]; };
+	changes?: { [uri: string]: TextEdit[]; };
+
+	/**
+	 * An array of `TextDocumentEdit`s to express changes to specific a specific
+	 * version of a text document. Whether a client supports versioned document
+	 * edits is expressed via `WorkspaceClientCapabilites.versionedWorkspaceEdit`.
+	 */
+	documentChanges?: TextDocumentEdit[];
 }
 ```
 
@@ -568,7 +608,7 @@ The current protocol specification defines that the lifetime of a server is mana
 The initialize request is sent as the first request from the client to the server. If the server receives request or notification before the `initialize` request it should act as follows:
 
 * for a request the respond should be errored with `code: -32002`. The message can be picked by the server.
-* notifications should be dropped.
+* notifications should be dropped, except for the exit notification. This will allow the exit a server without an initialize request.
 
 Until the server has responded to the `initialize` request with an `InitializeResult` the client must not sent any additional requests or notifications to the server. 
 
@@ -628,10 +668,20 @@ Where `ClientCapabilities`, `TextDocumentClientCapabilities` and `WorkspaceClien
  */
 export interface WorkspaceClientCapabilites {
 	/**
-	 * The client supports applying batch edits
-	 * to the workspace.
+	 * The client supports applying batch edits to the workspace by supporting
+	 * the request 'workspace/applyEdit'
 	 */
 	applyEdit?: boolean;
+
+	/**
+	 * Capabilities specific to `WorkspaceEdit`s
+	 */
+	workspaceEdit?: {
+		/**
+		 * The client supports versioned document changes in `WorkspaceEdit`s
+		 */
+		documentChanges?: boolean;
+	};
 
 	/**
 	 * Capabilities specific to the `workspace/didChangeConfiguration` notification.
@@ -865,7 +915,9 @@ export interface TextDocumentClientCapabilities {
 }
 ```
 
-> **New**: `ClientCapabilities` now define capabilities for dynamic registration, workspace and text document features the client supports. The `experimental` can be used to pass experimential capabilities under development. For future compatibility a `ClientCapabilities` object literal can have more properties set than currently defined. Servers receiving a `ClientCapabilities` object literal with unknown properties should ignore these properties. A missing property should be interpreted as an absence of the capability.
+> **New**: `ClientCapabilities` now define capabilities for dynamic registration, workspace and text document features the client supports. The `experimental` can be used to pass experimential capabilities under development. For future compatibility a `ClientCapabilities` object literal can have more properties set than currently defined. Servers receiving a `ClientCapabilities` object literal with unknown properties should ignore these properties. A missing property should be interpreted as an absence of the capability. If a property is missing that defines sub properties all sub properties should be interpreted as an absence of the capability.
+
+Client capabilities got introduced with the version 3.0 of the protocol. They therefore only describe capabilities that got introduced in 3.x or later. Capabilities that existed in the 2.x version of the protocol are still mandatory for clients. Clients cannot opt out of providing them. So even if a client omits the `ClientCapabilities.textDocument.synchronization` it is still required that the client provides text document synchronization (e.g. open, changed and close notifications).
 
 ```typescript
 interface ClientCapabilities {
@@ -1137,7 +1189,7 @@ The initialized notification is sent from the client to the server after the cli
 
 _Notification_:
 * method: 'initialized'
-* params: undefined
+* params: void
 
 #### <a name="shutdown"></a>Shutdown Request
 
@@ -1145,10 +1197,10 @@ The shutdown request is sent from the client to the server. It asks the server t
 
 _Request_:
 * method: 'shutdown'
-* params: undefined
+* params: void
 
 _Response_:
-* result: undefined
+* result: null
 * error: code and message set in case an exception happens during shutdown request.
 
 #### <a name="exit"></a>Exit Notification
@@ -1158,7 +1210,7 @@ The server should exit with `success` code 0 if the shutdown request has been re
 
 _Notification_:
 * method: 'exit'
-* params: undefined
+* params: void
 
 #### <a name="window_showMessage"></a>ShowMessage Notification
 
@@ -1478,7 +1530,7 @@ interface TextDocumentContentChangeEvent {
 	rangeLength?: number;
 
 	/**
-	 * The new text of the document.
+	 * The new text of the range/document.
 	 */
 	text: string;
 }

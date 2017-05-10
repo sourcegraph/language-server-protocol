@@ -1359,7 +1359,7 @@ interface ProgressParams {
    * Set to true on the final progress update.
    * No more progress notifications with the same ID should be sent.
    */
-  done?: bool;
+  done?: boolean;
 }
 ```
 

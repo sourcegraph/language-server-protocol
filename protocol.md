@@ -3,7 +3,7 @@
 This document describes version 3.0 of the language server protocol. Major goals of the 3.0 version are:
 
 - add support for client feature flags to support that servers can adapt to different client capabilities. An example is the new `textDocument/willSaveWaitUntil` request which not all clients might be able to support. If the feature is disabled in the client capabilities sent on the initialize request, the server can't rely on receiving the request.
-- add support to experiment with new features. The new `ClientCapabilities.experimential` section together with feature flags allow servers to provide experimental feature without
+- add support to experiment with new features. The new `ClientCapabilities.experimental` section together with feature flags allow servers to provide experimental feature without the need of ALL clients to adopt them immediatelly.
 - servers can more dynamically react to client features. Capabilites can now be registered and unregistered after the initialize request using the new `client/registerCapability` and `client/unregisterCapability`. This for example allows servers to react to settings or configuration changes without a restart.
 - add support for `textDocument/willSave` notification and `textDocument/willSaveWaitUntil` request.
 - add support for `textDocument/documentLink` request.
@@ -47,8 +47,8 @@ Workspace
 * :arrow_right: [workspace/didChangeConfiguration](#workspace_didChangeConfiguration)
 * :arrow_right: [workspace/didChangeWatchedFiles](#workspace_didChangeWatchedFiles)
 * :leftwards_arrow_with_hook: [workspace/symbol](#workspace_symbol)
-* >**New** :leftwards_arrow_with_hook: [workspace/executeCommand](#workspace_executeCommand)
-* >**New** :arrow_right_hook: [workspace/applyEdit](#workspace_applyEdit)
+* **New** :leftwards_arrow_with_hook: [workspace/executeCommand](#workspace_executeCommand)
+* **New** :arrow_right_hook: [workspace/applyEdit](#workspace_applyEdit)
 
 Document
 
@@ -96,14 +96,14 @@ Currently the following header fields are supported:
 | Header Field Name | Value Type  | Description |
 |:------------------|:------------|:------------|
 | Content-Length    | number      | The length of the content part in bytes. This header is required. |
-| Content-Type      | string      | The mime type of the content part. Defaults to application/vscode-jsonrpc; charset=utf8 |
+| Content-Type      | string      | The mime type of the content part. Defaults to application/vscode-jsonrpc; charset=utf-8 |
 
 The header part is encoded using the 'ascii' encoding. This includes the '\r\n' separating the header and content part.
 
 ### Content Part
 
-Contains the actual content of the message. The content part of a message uses [JSON-RPC](http://www.jsonrpc.org/) to describe requests, responses and notifications. The content part is encoded using the charset provided in the Content-Type field. It defaults to 'utf8', which is the only encoding supported right now.
-
+Contains the actual content of the message. The content part of a message uses [JSON-RPC](http://www.jsonrpc.org/) to describe requests, responses and notifications. The content part is encoded using the charset provided in the Content-Type field. It defaults to `utf-8`, which is the only encoding supported right now. 
+> **Changed** Prior version of the protocol used the string constant `utf8` which is not a correct encoding constant according to [specification](http://www.iana.org/assignments/character-sets/character-sets.xhtml)). For backwards compatibility it is highly recommended that a client and a server treats the string `utf8` as `utf-8`.
 
 ### Example:
 
@@ -436,7 +436,7 @@ interface TextEdit {
 }
 ```
 
-If n `TextEdit`s are applied to a text document all text edits describe changes to the initial document version. Execution wise text edits should applied from the bottom to the top of the text document. Overlapping text edits are not supported.  
+If multiple `TextEdit`s are applied to a text document, all text edits describe changes made to the initial document version. Execution wise text edits should applied from the bottom to the top of the text document. Overlapping text edits are not supported.  
 
 >#### New: TextDocumentEdit
 
@@ -578,7 +578,6 @@ export interface DocumentFilter {
 ```
 
 A document selector is the combination of one or many document filters.
-
 
 ```typescript
 export type DocumentSelector = DocumentFilter[];
@@ -967,9 +966,10 @@ export namespace InitializeError {
 ```typescript
 interface InitializeError {
 	/**
-	 * Indicates whether the client should retry to send the
-	 * initilize request after showing the message provided
-	 * in the ResponseError.
+	 * Indicates whether the client execute the following retry logic:
+	 * (1) show the message provided by the ResponseError to the user
+	 * (2) user selects retry or cancel
+	 * (3) if user selected retry the initialize method is sent again.
 	 */
 	retry: boolean;
 }
@@ -1185,7 +1185,7 @@ interface ServerCapabilities {
 
 >#### New: <a name="initialized"></a>Initialized Notification
 
-The initialized notification is sent from the client to the server after the client is fully initialized and is able to listen to arbritary requests and notifications sent from the server.
+The initialized notification is sent from the client to the server after the client received the result of the `initialize` request but before the client is sending any other request or notification to the server. The server can use the `initialized` notification for example to dynamically register capabilities.
 
 _Notification_:
 * method: 'initialized'
@@ -1489,7 +1489,7 @@ interface DidOpenTextDocumentParams {
 }
 ```
 
-_Registration Options_: `TextDocumentRegistrationsOptions`
+_Registration Options_: `TextDocumentRegistrationOptions`
 
 #### <a name="textDocument_didChange"></a>DidChangeTextDocument Notification
 
@@ -1993,12 +1993,24 @@ interface SignatureHelp {
 	signatures: SignatureInformation[];
 
 	/**
-	 * The active signature.
+	 * The active signature. If omitted or the value lies outside the
+	 * range of `signatures` the value defaults to zero or is ignored if
+	 * `signatures.length === 0`. Whenever possible implementors should 
+	 * make an active decision about the active signature and shouldn't 
+	 * rely on a default value.
+	 * In future version of the protocol this property might become
+	 * mandantory to better express this.
 	 */
 	activeSignature?: number;
 
 	/**
-	 * The active parameter of the active signature.
+	 * The active parameter of the active signature. If omitted or the value
+	 * lies outside the range of `signatures[activeSignature].parameters` 
+	 * defaults to 0 if the active signature has parameters. If 
+	 * the active signature has no parameters it is ignored. 
+	 * In future version of the protocol this property might become
+	 * mandantory to better express the active parameter if the
+	 * active signature does have any.
 	 */
 	activeParameter?: number;
 }
@@ -2264,7 +2276,7 @@ _Registration Options_: void
 
 #### <a name="textDocument_codeAction"></a>Code Action Request
 
-The code action request is sent from the client to the server to compute commands for a given text document and range. The request is triggered when the user moves the cursor into a problem marker in the editor or presses the lightbulb associated with a marker.
+The code action request is sent from the client to the server to compute commands for a given text document and range. These commands are typically code fixes to either fix problems or to beautify/refactor code.
 
 _Request_:
 * method: 'textDocument/codeAction'
@@ -2647,7 +2659,7 @@ export interface ExecuteCommandRegistrationOptions {
 }
 ```
 
-#### <a name="workspace_ApplyEdit"></a>Applies a WorkspaceEdit
+#### <a name="workspace_applyEdit"></a>Applies a WorkspaceEdit
 
 The `workspace/applyEdit` request is sent from the server to the client to modify resource on the client side.
 

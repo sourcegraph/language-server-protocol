@@ -1347,11 +1347,13 @@ interface ProgressParams {
 
   /**
    * Optional progress message to display.
+   * If unset, the previous progress message (if any) is still valid.
    */
   message?: string;
 
   /**
    * Optional progress percentage to display.
+   * If unset, the previous progress percentage (if any) is still valid.
    */
   percentage?: number;
 

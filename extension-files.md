@@ -36,7 +36,7 @@ interface ClientCapabilities {
 
 ### Content Request
 
-The content request is sent from the server to the client to request the current content of any text document. This allows language servers to operate without accessing the file system directly.
+The content request is sent from the server to the client to request the current content of any text document. This allows language servers to operate without accessing the file system directly. The value of `uri` in the response may be different than the one in the request, giving the server a way to access the file directly. In this case, the `text` value may be `null`.
 
 _Request_:
 * method: 'textDocument/xcontent'

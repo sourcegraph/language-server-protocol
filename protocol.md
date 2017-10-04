@@ -1340,10 +1340,10 @@ interface ProgressParams {
   id: string;
 
   /**
-   * The title of the progress.
-   * This should be the same for all ProgressParams with the same id.
+   * Optional title of the progress.
+   * If unset, the previous title (if any) is still valid.
    */
-  title: string;
+  title?: string;
 
   /**
    * Optional progress message to display.

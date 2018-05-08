@@ -1,11 +1,11 @@
 # symbolDescriptor extensions to LSP
 
-Roughly speaking, a `symbolDescriptor` (defined fully below) encodes enough metadata about a symbol to be to   uniquely identify it even when it appears in other projects (i.e. as a dependency).
+Roughly speaking, a `symbolDescriptor` (defined fully below) encodes enough metadata about a symbol to be to uniquely identify it even when it appears in other projects (i.e. as a dependency).
 
 The `symbolDescriptor` extensions to the Language Server Protocol (LSP) allow a language server to able to interact with `symbolDescriptors` via the following methods:
-- The `textDocument/xdefinition` method is similar to `textDocument/definition` - it returns a `symbolDescriptor` and optionally a concrete location for the definition
-- The `workspace/xreferences` method locates project wide references to a symbol given a `symbolDescriptor`
-- The `workspace/symbol` method allows you to search for an instance of a symbol given a `symbolDescriptor`
+- The `textDocument/xdefinition` method is similar to `textDocument/definition` - it returns a `symbolDescriptor` and _optionally_ a concrete location for the definition
+- The `workspace/xreferences` method locates project wide references to a symbol, given a `symbolDescriptor`
+- The `workspace/symbol` method allows you to search for an instance of a symbol, given a `symbolDescriptor`
 
 Use case: clients of a language server can invoke `workspace/xreferences` in order to find references to dependencies. This information can then be stored in a database, which allows the caller to create a "global mapping" of symbols in dependencies to the workspaces they are used in (e.g. to see "how do other people use this symbol?"). A user would perform `textDocument/xdefinition` in order to locate the metadata about the symbol they are interested in and find its references in the database.
 

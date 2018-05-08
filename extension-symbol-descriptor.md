@@ -1,7 +1,6 @@
 # symbolDescriptor extensions to LSP
 
-Roughly speaking, a `symbolDescriptor` (defined fully below) encodes enough metadata about a symbol to be to 
-uniquely identify it even when it appears in other projects (i.e. as a dependency).
+Roughly speaking, a `symbolDescriptor` (defined fully below) encodes enough metadata about a symbol to be to   uniquely identify it even when it appears in other projects (i.e. as a dependency).
 
 The `symbolDescriptor` extensions to the Language Server Protocol (LSP) allow a language server to able to interact with `symbolDescriptors` via the following methods:
 - The `textDocument/xdefinition` method is similar to `textDocument/definition` - it returns a `symbolDescriptor` and optionally a concrete location for the definition

@@ -1,8 +1,8 @@
-# `exec` extension to LSP
+# Exec extension to LSP
 
-The `exec` extension allows the server to send a command (e.g. `git blame`) to the client for execution, and the client responds with the stdout of the command.
+The exec extension allows the server to send a command (e.g. `git blame`) to the client for execution, and the client responds with the stdout of the command.
 
-### `exec` Request
+### Exec Request
 
 _Request_:
 * method: 'xexec'

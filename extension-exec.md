@@ -31,7 +31,7 @@ interface ExecResult {
     /**
      * The exit code of the process
      */
-    exitCode: string;
+    exitCode: number;
 }
 ```
 * error: code and message set in case the command was not found.

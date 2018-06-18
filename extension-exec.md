@@ -16,7 +16,7 @@ interface ExecParams {
     /**
      * The arguments to the command
      */
-    arguments: string;
+    arguments: string[];
 }
 ```
 

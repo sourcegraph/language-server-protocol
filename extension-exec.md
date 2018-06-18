@@ -28,6 +28,10 @@ interface ExecResult {
      * The stdout of the process
      */
     stdout: string;
+    /**
+     * The exit code of the process
+     */
+    exitCode: string;
 }
 ```
-* error: code and message set in case the process does not exit with code 0.
+* error: code and message set in case the command was not found.

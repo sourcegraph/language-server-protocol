@@ -29,6 +29,10 @@ interface ExecResult {
      */
     stdout: string;
     /**
+     * The stderr of the process
+     */
+    stderr: string;
+    /**
      * The exit code of the process
      */
     exitCode: number;

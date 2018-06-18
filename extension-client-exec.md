@@ -21,7 +21,7 @@ interface ExecParams {
 ```
 
 _Response_:
-* result: `ExecResult`
+* result: `ExecResult` defined as follows:
 ```typescript
 interface ExecResult {
     /**

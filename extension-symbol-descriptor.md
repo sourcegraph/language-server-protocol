@@ -138,7 +138,7 @@ interface SymbolLocationInformation {
 
 The `workspace/symbol` request takes an optional parameter `symbol` that allows you to query by known properties about the symbol.
 The string `query` parameter becomes optional.
-If both `query` and `symbol` are provided, both should both be matched with AND semantics.
+If both `query` and `symbol` are provided, both should be matched with AND semantics.
 
 #### Differences between `symbol` and `query`
 

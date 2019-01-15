@@ -13,7 +13,7 @@ Use cases:
 
 Note that unlike other requests in LSP, these requests are sent by the language server to the client, not vice versa. The client, not the language server, is assumed to have full access to the workspace's contents.
 
-The language server is allowed to request file paths outside of the workspace root. (This is common for, e.g., system dependencies.) The client may choose whether or not to satisfy these requests.
+The language server is allowed to request file paths outside of the workspace root. (This is common for, e.g., system dependencies.) The client may choose whether or not to satisfy these requests.  The client can deny a request by replying with jsonrpc error code -32600 (InvalidRequest).
 
 ### Initialization
 
